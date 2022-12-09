@@ -1,0 +1,27 @@
+#file: noinspection YAMLSchemaValidation
+app:
+  debug: true
+  api: https://xxxx-api.local.uugoi.com
+  log: C:/Code/Temp/xxxx/logs
+port:
+  api: 54545
+  ws: 56565
+data:
+  mysql:
+    host: docker.srv
+    port: 3306
+    database: xxxx_dev
+    username: vity
+    password: "P@ssw0rd"
+    max-conn: 256
+    max-idle: 4
+    timeout: 60
+  redis:
+    host: docker.srv
+    port: 6379
+    database: 0
+    username: ""
+    password: ""
+    max-conn: 256
+    max-idle: 4
+    timeout: 60

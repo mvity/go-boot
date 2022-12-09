@@ -21,3 +21,7 @@ go get github.com/go-redis/redis/v9
 
 go get -u go.uber.org/zap
 go get -u github.com/natefinch/lumberjack
+
+## Cobra CLI组件
+
+go get -u github.com/spf13/cobra@latest
