@@ -22,14 +22,14 @@ func init() {
 	rootCmd.AddCommand(verCmd)
 
 	rootCmd.PersistentFlags().StringVarP(&conf, "conf", "c", "", "项目配置文件")
-	rootCmd.PersistentFlags().Int8VarP(&port, "port", "p", 0, "API/WebSocket 运行端口")
+	rootCmd.PersistentFlags().IntVarP(&port, "port", "p", 0, "API/WebSocket 运行端口")
 }
 
 // 配置文件
 var conf string
 
 // 运行端口
-var port int8
+var port int
 
 // 启动主命令
 var rootCmd = &cobra.Command{
