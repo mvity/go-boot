@@ -53,7 +53,7 @@ func (e *executor) handle(now time.Time) {
 	}
 }
 
-// 执行支付检查
+// 执行任务
 func (*executor) doExecTestTask(db *gorm.DB, now time.Time, id string, info string) {
 	defer func() {
 		if err := recover(); err != nil {

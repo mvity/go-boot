@@ -1,6 +1,9 @@
 package job
 
 import (
+	"errors"
+	"fmt"
+	"github.com/mvity/go-boot/internal/app"
 	"github.com/robfig/cron/v3"
 )
 
@@ -25,28 +28,15 @@ func (f *fixed) Stop() {
 
 // addFunc 添加任务
 func (f *fixed) addFunc() {
-	//var err error
-	//var eid cron.EntryID
+	var err error
+	var eid cron.EntryID
 
-	//eid, err = f.crond.AddFunc("1 0 * * *", services.SysService.InitPlatSummaryData)
-	//if err != nil {
-	//	panic(errors.New(fmt.Sprintf("[%s] %s %v", "fiexdJob", "Add [InitPlatSummaryData] f error", err)))
-	//} else {
-	//	core.AddLog.SysInfo(fmt.Sprintf("[%s] %s , EntryID: %v", "fiexdJob", "Add [InitPlatSummaryData] f success", eid))
-	//}
-	//
-	//eid, err = f.crond.AddFunc("0 4 * * *", services.SysService.SyncDistrict)
-	//if err != nil {
-	//	panic(errors.New(fmt.Sprintf("[%s] %s %s %v", "fiexdJob", "Start", "Add [SyncDistrict] f error", err)))
-	//} else {
-	//	core.AddLog.SysInfo(fmt.Sprintf("[%s] %s , EntryID: %v", "fiexdJob", "Add [SyncDistrict] f success", eid))
-	//}
-
-	//eid, err = f.crond.AddFunc("0 1 * * *", services.SysService.SyncCarSeries)
-	//if err != nil {
-	//	panic(errors.New(fmt.Sprintf("[%s] %s %v", "fiexdJob", "Add [SyncCarSeries] f error", err)))
-	//} else {
-	//	core.AddLog.SysInfo(fmt.Sprintf("[%s] %s , EntryID: %v", "fiexdJob", "Add [SyncCarSeries] f success", eid))
-	//}
+	if eid, err = f.crond.AddFunc("1 0 * * *", func() {
+		fmt.Println("demo")
+	}); err != nil {
+		panic(errors.New(fmt.Sprintf("[%s] %s %v", "job.Fiexd", "Add [demo] f error", err)))
+	} else {
+		app.LogSysInfo(fmt.Sprintf("[%s] %s , EntryID: %v", "job.Fiexd", "Add [demo] f success", eid), nil)
+	}
 
 }

@@ -5,6 +5,8 @@ import (
 	"github.com/mvity/go-boot/internal/app"
 	"github.com/mvity/go-boot/internal/dao/mysql"
 	"github.com/mvity/go-boot/internal/dao/redis"
+	"github.com/mvity/go-boot/internal/job"
+	"github.com/mvity/go-boot/internal/wss"
 	"log"
 )
 
@@ -36,6 +38,24 @@ func Boot(_api, _job, _wss bool, config string, port int) {
 	if _api {
 		if err := api.InitApiService(); err != nil {
 			log.Panicf("Init API Service error, cause: %v\n", err)
+		} else {
+			log.Println("Start API Service success.")
+		}
+	}
+
+	if _job {
+		if err := job.InitJobService(); err != nil {
+			log.Panicf("Init Job Service error, cause: %v\n", err)
+		} else {
+			log.Println("Start Job Service success.")
+		}
+	}
+
+	if _wss {
+		if err := wss.InitWssService(); err != nil {
+			log.Panicf("Init WSS Service error, cause: %v\n", err)
+		} else {
+			log.Println("Start WSS Service success.")
 		}
 	}
 
