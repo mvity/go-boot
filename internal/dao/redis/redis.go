@@ -10,13 +10,13 @@ import (
 
 var Redis *redis.Client
 
-var RedisContext = context.Background()
+var Context = context.Background()
 
 const (
-	RedisBloomPrefix = "GBoot:B:" // Redis 布隆过滤器前缀
-	RedisCachePrefix = "GBoot:C:" // Redis 缓存前缀
-	RedisLockPrefix  = "GBoot:L:" // Redis 锁前缀
-	RedisDataPrefix  = "GBoot:D:" // Redis 数据前缀
+	BloomPrefix = "GoBoot:B:" // Redis 布隆过滤器前缀
+	CachePrefix = "GoBoot:C:" // Redis 缓存前缀
+	LockPrefix  = "GoBoot:L:" // Redis 锁前缀
+	DataPrefix  = "GoBoot:D:" // Redis 数据前缀
 )
 
 // InitRedis 初始化Redis连接
@@ -29,7 +29,7 @@ func InitRedis() error {
 		MaxIdleConns: app.Config.Data.Redis.MaxIdle,
 		ReadTimeout:  time.Duration(app.Config.Data.Redis.Timeout),
 	})
-	if _, err := Redis.Ping(RedisContext).Result(); err != nil {
+	if _, err := Redis.Ping(Context).Result(); err != nil {
 		return err
 	}
 	return nil

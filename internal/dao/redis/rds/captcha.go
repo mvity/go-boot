@@ -38,9 +38,9 @@ func (s *smsCaptcha) GenerateCaptch(mob string, minute int) (string, string) {
 	code := x.RandomString(4, false, true)
 	info := s.getCaptchInfo(mob, code)
 
-	rkey := redis.RedisDataPrefix + "Captch:Sms:" + info
-	redis.Redis.IncrBy(redis.RedisContext, rkey, 0)
-	redis.Redis.Expire(redis.RedisContext, rkey, time.Duration(minute)*time.Minute)
+	rkey := redis.DataPrefix + "Captch:Sms:" + info
+	redis.Redis.IncrBy(redis.Context, rkey, 0)
+	redis.Redis.Expire(redis.Context, rkey, time.Duration(minute)*time.Minute)
 	return info, code
 }
 
@@ -63,20 +63,20 @@ func (s *smsCaptcha) ValidCaptch(mob string, code string, info string) bool {
 		return true
 	}
 
-	rkey := redis.RedisDataPrefix + "Captch:Sms:" + info
+	rkey := redis.DataPrefix + "Captch:Sms:" + info
 
-	if redis.Redis.Exists(redis.RedisContext, rkey).Val() == 0 {
+	if redis.Redis.Exists(redis.Context, rkey).Val() == 0 {
 		return false
 	}
-	if redis.Redis.IncrBy(redis.RedisContext, rkey, 0).Val() >= 6 {
-		redis.Redis.Del(redis.RedisContext, rkey)
+	if redis.Redis.IncrBy(redis.Context, rkey, 0).Val() >= 6 {
+		redis.Redis.Del(redis.Context, rkey)
 		return false
 	}
 	flag := info == s.getCaptchInfo(mob, code)
 	if flag {
-		redis.Redis.Del(redis.RedisContext, rkey)
+		redis.Redis.Del(redis.Context, rkey)
 	} else {
-		redis.Redis.IncrBy(redis.RedisContext, rkey, 1)
+		redis.Redis.IncrBy(redis.Context, rkey, 1)
 	}
 	return flag
 }

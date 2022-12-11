@@ -1,9 +1,10 @@
-package mysql
+package dbs
 
 import (
 	"encoding/json"
 	"fmt"
 	"github.com/mvity/go-boot/internal/app"
+	"github.com/mvity/go-boot/internal/dao/mysql"
 	"github.com/mvity/go-boot/internal/dao/redis/rds"
 	"gorm.io/gorm"
 	"gorm.io/gorm/schema"
@@ -16,7 +17,7 @@ func setCache(id uint64, entity any) {
 	if entity == nil {
 		return
 	}
-	if ptr, ok := any(&entity).(DBEntity); ok && ptr.GetExpire().Milliseconds() == 0 {
+	if ptr, ok := any(&entity).(mysql.DBEntity); ok && ptr.GetExpire().Milliseconds() == 0 {
 		return
 	}
 	if bs, err := json.Marshal(entity); err == nil {
@@ -28,7 +29,7 @@ func setCache(id uint64, entity any) {
 
 // 清除缓存
 func delCache(id uint64, entity any) {
-	if ptr, ok := any(&entity).(DBEntity); ok && ptr.GetExpire().Milliseconds() == 0 {
+	if ptr, ok := any(&entity).(mysql.DBEntity); ok && ptr.GetExpire().Milliseconds() == 0 {
 		return
 	}
 	rds.Cache.Clear("PK:"+(entity).(schema.Tabler).TableName(), strconv.FormatUint(id, 10))
@@ -40,7 +41,7 @@ func getCache[T any](id uint64) (*T, bool) {
 		return nil, false
 	}
 	var entity T
-	if ptr, ok := any(&entity).(DBEntity); ok && ptr.GetExpire().Milliseconds() == 0 {
+	if ptr, ok := any(&entity).(mysql.DBEntity); ok && ptr.GetExpire().Milliseconds() == 0 {
 		return nil, false
 	}
 	if str := rds.Cache.Get("PK:"+any(&entity).(schema.Tabler).TableName(), strconv.FormatUint(id, 10)); len(str) > 0 {
@@ -55,15 +56,15 @@ func getCache[T any](id uint64) (*T, bool) {
 
 // Save 保存
 func Save(db *gorm.DB, entity any) {
-	var idEntity *Entity
-	if ptr, ok := entity.(DBEntity); ok {
+	var idEntity *mysql.Entity
+	if ptr, ok := entity.(mysql.DBEntity); ok {
 		idEntity = ptr.GetEntity()
 	}
 	if idEntity == nil {
 		panic(&app.MySQLError{Message: "无效的实体对象"})
 	}
 	if db.Statement.Context == nil || db.Statement.Context.Err() != nil {
-		db.Statement.Context = MySQLContext
+		db.Statement.Context = mysql.Context
 	}
 	var result *gorm.DB
 	if idEntity.ZyxVersion == 0 {
@@ -82,15 +83,15 @@ func Save(db *gorm.DB, entity any) {
 
 // Remove 逻辑删除
 func Remove(db *gorm.DB, entity any) {
-	var idEntity *Entity
-	if ptr, ok := entity.(DBEntity); ok {
+	var idEntity *mysql.Entity
+	if ptr, ok := entity.(mysql.DBEntity); ok {
 		idEntity = ptr.GetEntity()
 	}
 	if idEntity == nil {
 		panic(&app.MySQLError{Message: "无效的实体对象"})
 	}
 	if db.Statement.Context == nil || db.Statement.Context.Err() != nil {
-		db.Statement.Context = MySQLContext
+		db.Statement.Context = mysql.Context
 	}
 	idEntity.ZyxDelete = true
 	result := db.Model(entity).Where("C002 = ?", idEntity.ZyxVersion).Update("C003", true)
@@ -105,15 +106,15 @@ func Remove(db *gorm.DB, entity any) {
 
 // Delete 物理删除
 func Delete(db *gorm.DB, entity any) {
-	var idEntity *Entity
-	if ptr, ok := entity.(DBEntity); ok {
+	var idEntity *mysql.Entity
+	if ptr, ok := entity.(mysql.DBEntity); ok {
 		idEntity = ptr.GetEntity()
 	}
 	if idEntity == nil {
 		panic(&app.MySQLError{Message: "无效的实体对象"})
 	}
 	if db.Statement.Context == nil || db.Statement.Context.Err() != nil {
-		db.Statement.Context = MySQLContext
+		db.Statement.Context = mysql.Context
 	}
 	result := db.Delete(entity)
 	if result.Error != nil {
@@ -132,13 +133,13 @@ func FindDatabase[T any](db *gorm.DB, id uint64) *T {
 	}
 	var entity T
 	if db.Statement.Context == nil || db.Statement.Context.Err() != nil {
-		db.Statement.Context = MySQLContext
+		db.Statement.Context = mysql.Context
 	}
 	if db.Where("C001 = ?", id).Limit(1).Find(&entity).RowsAffected == 0 {
 		return nil
 	}
-	var idEntity *Entity
-	if ptr, ok := any(&entity).(DBEntity); ok {
+	var idEntity *mysql.Entity
+	if ptr, ok := any(&entity).(mysql.DBEntity); ok {
 		idEntity = ptr.GetEntity()
 	}
 	if idEntity == nil {
@@ -160,8 +161,8 @@ func FindOrigin[T any](db *gorm.DB, id uint64) *T {
 		return nil
 	} else {
 		entity = *ptr
-		var idEntity *Entity
-		if obj, ok := any(&entity).(DBEntity); ok {
+		var idEntity *mysql.Entity
+		if obj, ok := any(&entity).(mysql.DBEntity); ok {
 			idEntity = obj.GetEntity()
 		}
 		if idEntity == nil || idEntity.ZyxDelete {
@@ -208,7 +209,7 @@ func FindSnapshot[T any](db *gorm.DB, id uint64) *T {
 }
 
 // findRecord 查询单条数据
-func findRecord[T any](db *gorm.DB, query *Query) *T {
+func findRecord[T any](db *gorm.DB, query *mysql.Query) *T {
 	var entity T
 	if db.Raw(query.SQL, query.Param...).Limit(1).Scan(&entity).RowsAffected <= 0 {
 		return nil
@@ -217,7 +218,7 @@ func findRecord[T any](db *gorm.DB, query *Query) *T {
 }
 
 // findRecords 查询多条数据
-func findRecords[T any](db *gorm.DB, query *Query) []*T {
+func findRecords[T any](db *gorm.DB, query *mysql.Query) []*T {
 	var entitys = make([]*T, 0)
 	db.Raw(query.SQL, query.Param...).Scan(&entitys)
 	return entitys
@@ -226,7 +227,7 @@ func findRecords[T any](db *gorm.DB, query *Query) []*T {
 // findPager 执行分页查询
 //
 //goland:noinspection ALL
-func findPager[T any](db *gorm.DB, query *Query) (*app.Paged, []*T) {
+func findPager[T any](db *gorm.DB, query *mysql.Query) (*app.Paged, []*T) {
 	var countSQL, querySQL string
 	cond := string([]rune(query.SQL)[strings.Index(query.SQL, " FROM ")+6:])
 	{

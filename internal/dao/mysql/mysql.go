@@ -18,7 +18,7 @@ import (
 
 var MySQL *gorm.DB
 
-var MySQLContext = context.Background()
+var Context = context.Background()
 
 // InitMySQL 初始化MySQL组件
 func InitMySQL() error {
@@ -100,7 +100,7 @@ func InitMySQL() error {
 // 所有回调之前
 func beforeCallback(db *gorm.DB) {
 	if db.Statement.Context == nil || db.Statement.Context.Err() != nil {
-		db.Statement.Context = MySQLContext
+		db.Statement.Context = Context
 	}
 }
 

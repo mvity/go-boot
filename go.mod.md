@@ -25,3 +25,7 @@ go get -u github.com/natefinch/lumberjack
 ## Cobra CLI组件
 
 go get -u github.com/spf13/cobra@latest
+
+## Corn 工具库
+
+go get -u github.com/robfig/cron/v3

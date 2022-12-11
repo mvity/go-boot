@@ -11,26 +11,26 @@ var Count count
 
 // Get 获取数量
 func (c *count) Get(tag string) int64 {
-	rkey := redis.RedisDataPrefix + "Counter:" + tag
-	return redis.Redis.IncrBy(redis.RedisContext, rkey, 0).Val()
+	rkey := redis.DataPrefix + "Counter:" + tag
+	return redis.Redis.IncrBy(redis.Context, rkey, 0).Val()
 }
 
 // Add  增加数量
 func (c *count) Add(tag string, count int64) (bool, int64) {
-	rkey := redis.RedisDataPrefix + "Counter:" + tag
-	val, err := redis.Redis.IncrBy(redis.RedisContext, rkey, count).Result()
+	rkey := redis.DataPrefix + "Counter:" + tag
+	val, err := redis.Redis.IncrBy(redis.Context, rkey, count).Result()
 	return err == nil, val
 }
 
 // Sub  减少数量
 func (c *count) Sub(tag string, count int64) (bool, int64) {
-	rkey := redis.RedisDataPrefix + "Counter:" + tag
-	val, err := redis.Redis.DecrBy(redis.RedisContext, rkey, count).Result()
+	rkey := redis.DataPrefix + "Counter:" + tag
+	val, err := redis.Redis.DecrBy(redis.Context, rkey, count).Result()
 	return err == nil, val
 }
 
 // Del 删除计数器
 func (c *count) Del(tag string) {
-	rkey := redis.RedisDataPrefix + "Counter:" + tag
-	redis.Redis.Del(redis.RedisContext, rkey)
+	rkey := redis.DataPrefix + "Counter:" + tag
+	redis.Redis.Del(redis.Context, rkey)
 }

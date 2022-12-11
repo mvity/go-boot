@@ -24,6 +24,7 @@ require (
 	github.com/mvity/go-box v1.0.3 // indirect
 	github.com/natefinch/lumberjack v2.0.0+incompatible // indirect
 	github.com/pelletier/go-toml/v2 v2.0.6 // indirect
+	github.com/robfig/cron/v3 v3.0.0 // indirect
 	github.com/spf13/cobra v1.6.1 // indirect
 	github.com/spf13/pflag v1.0.5 // indirect
 	github.com/ugorji/go/codec v1.2.7 // indirect

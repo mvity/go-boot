@@ -13,25 +13,25 @@ var Near near
 
 // Set 设置附近地点
 func (n *near) Set(tag string, key string, locs string) bool {
-	rkey := redis2.RedisDataPrefix + "Near" + ":" + tag
+	rkey := redis2.DataPrefix + "Near" + ":" + tag
 	lng, lat := x.ParseLocation(locs)
 	loc := &redis.GeoLocation{
 		Name:      key,
 		Longitude: lng,
 		Latitude:  lat,
 	}
-	return redis2.Redis.GeoAdd(redis2.RedisContext, rkey, loc).Val() > 0
+	return redis2.Redis.GeoAdd(redis2.Context, rkey, loc).Val() > 0
 }
 
 // Delete 删除附近地点
 func (n *near) Delete(tag string, key string) {
-	rkey := redis2.RedisDataPrefix + "Near" + ":" + tag
-	redis2.Redis.ZRem(redis2.RedisContext, rkey, key)
+	rkey := redis2.DataPrefix + "Near" + ":" + tag
+	redis2.Redis.ZRem(redis2.Context, rkey, key)
 }
 
 // Query 查询附近地点
 func (n *near) Query(tag string, locs string, meter int64, size int) []redis.GeoLocation {
-	rkey := redis2.RedisDataPrefix + "Near" + ":" + tag
+	rkey := redis2.DataPrefix + "Near" + ":" + tag
 	lng, lat := x.ParseLocation(locs)
 
 	query := &redis.GeoRadiusQuery{
@@ -45,6 +45,6 @@ func (n *near) Query(tag string, locs string, meter int64, size int) []redis.Geo
 		Store:       "",
 		StoreDist:   "",
 	}
-	return redis2.Redis.GeoRadius(redis2.RedisContext, rkey, lng, lat, query).Val()
+	return redis2.Redis.GeoRadius(redis2.Context, rkey, lng, lat, query).Val()
 
 }
