@@ -1,4 +1,4 @@
-module github.com/mvity/go-quickstart
+module github.com/mvity/go-boot
 
 go 1.19
 

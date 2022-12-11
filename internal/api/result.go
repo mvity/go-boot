@@ -4,7 +4,7 @@ import (
 	"fmt"
 	ut "github.com/go-playground/universal-translator"
 	"github.com/go-playground/validator/v10"
-	"github.com/mvity/go-quickstart/internal/app"
+	"github.com/mvity/go-boot/internal/app"
 	"time"
 )
 

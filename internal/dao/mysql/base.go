@@ -3,8 +3,8 @@ package mysql
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/mvity/go-quickstart/internal/app"
-	"github.com/mvity/go-quickstart/internal/dao/redis/rds"
+	"github.com/mvity/go-boot/internal/app"
+	"github.com/mvity/go-boot/internal/dao/redis/rds"
 	"gorm.io/gorm"
 	"gorm.io/gorm/schema"
 	"strconv"

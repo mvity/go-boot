@@ -2,9 +2,9 @@ package rds
 
 import (
 	"fmt"
+	"github.com/mvity/go-boot/internal/app"
+	"github.com/mvity/go-boot/internal/dao/redis"
 	"github.com/mvity/go-box/x"
-	"github.com/mvity/go-quickstart/internal/app"
-	"github.com/mvity/go-quickstart/internal/dao/redis"
 	"strconv"
 	"strings"
 	"time"

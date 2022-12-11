@@ -4,9 +4,9 @@ import (
 	"errors"
 	"fmt"
 	"github.com/go-redis/redis/v9"
+	"github.com/mvity/go-boot/internal/app"
+	redis2 "github.com/mvity/go-boot/internal/dao/redis"
 	"github.com/mvity/go-box/x"
-	"github.com/mvity/go-quickstart/internal/app"
-	redis2 "github.com/mvity/go-quickstart/internal/dao/redis"
 	"strconv"
 	"time"
 )

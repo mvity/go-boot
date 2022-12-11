@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"github.com/mvity/go-quickstart/internal/core"
+	"github.com/mvity/go-boot/internal/core"
 	"github.com/spf13/cobra"
 )
 

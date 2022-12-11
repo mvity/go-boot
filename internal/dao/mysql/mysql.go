@@ -3,9 +3,9 @@ package mysql
 import (
 	"context"
 	"fmt"
+	"github.com/mvity/go-boot/internal/app"
+	"github.com/mvity/go-boot/internal/dao/redis/rds"
 	"github.com/mvity/go-box/x"
-	"github.com/mvity/go-quickstart/internal/app"
-	"github.com/mvity/go-quickstart/internal/dao/redis/rds"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"

@@ -1,10 +1,10 @@
 package core
 
 import (
-	"github.com/mvity/go-quickstart/internal/api"
-	"github.com/mvity/go-quickstart/internal/app"
-	"github.com/mvity/go-quickstart/internal/dao/mysql"
-	"github.com/mvity/go-quickstart/internal/dao/redis"
+	"github.com/mvity/go-boot/internal/api"
+	"github.com/mvity/go-boot/internal/app"
+	"github.com/mvity/go-boot/internal/dao/mysql"
+	"github.com/mvity/go-boot/internal/dao/redis"
 	"log"
 )
 

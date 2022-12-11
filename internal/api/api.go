@@ -2,8 +2,8 @@ package api
 
 import (
 	"github.com/gin-gonic/gin"
+	"github.com/mvity/go-boot/internal/app"
 	"github.com/mvity/go-box/x"
-	"github.com/mvity/go-quickstart/internal/app"
 )
 
 func InitApiService() error {

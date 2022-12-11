@@ -1,8 +1,8 @@
 package rds
 
 import (
+	"github.com/mvity/go-boot/internal/dao/redis"
 	"github.com/mvity/go-box/x"
-	"github.com/mvity/go-quickstart/internal/dao/redis"
 	"time"
 )
 

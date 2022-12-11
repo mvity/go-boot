@@ -3,8 +3,8 @@ package redis
 import (
 	"context"
 	"github.com/go-redis/redis/v9"
+	"github.com/mvity/go-boot/internal/app"
 	"github.com/mvity/go-box/x"
-	"github.com/mvity/go-quickstart/internal/app"
 	"time"
 )
 
