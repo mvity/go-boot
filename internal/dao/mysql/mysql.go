@@ -1,11 +1,11 @@
-package dao
+package mysql
 
 import (
 	"context"
 	"fmt"
 	"github.com/mvity/go-box/x"
 	"github.com/mvity/go-quickstart/internal/app"
-	"github.com/mvity/go-quickstart/internal/dao/rds"
+	"github.com/mvity/go-quickstart/internal/dao/redis/rds"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
@@ -221,14 +221,6 @@ type Query struct {
 	Count int // 总记录数
 }
 
-// Paged 分页查询结果
-type Paged struct {
-	Page  int   `json:"now"` // 当前分页
-	Time  int64 `json:"fms"` // 初次查询时间
-	Total int   `json:"all"` // 总页码
-	Count int   `json:"row"` // 总记录数
-}
-
 // AddSQL 添加语句
 func (q *Query) AddSQL(sqlx string) *Query {
 	q.SQL += " " + strings.TrimSpace(sqlx)
@@ -258,7 +250,7 @@ func (q *Query) AddSQLParam(sqlx string, param ...any) *Query {
 }
 
 // Result 生成分页结果
-func (q *Query) Result() *Paged {
+func (q *Query) Result() *app.Paged {
 	var total = 1
 	if q.Count > 0 {
 		total = int(math.Ceil(float64(q.Count) / (float64(q.Size))))
@@ -266,7 +258,7 @@ func (q *Query) Result() *Paged {
 	if q.Page == 1 {
 		q.Time = time.Now().UnixMilli()
 	}
-	return &Paged{
+	return &app.Paged{
 		Page:  q.Page,
 		Time:  q.Time,
 		Total: total,

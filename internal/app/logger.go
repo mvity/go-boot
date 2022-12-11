@@ -3,7 +3,7 @@ package app
 import (
 	"fmt"
 	"github.com/gin-gonic/gin"
-	k "github.com/mvity/go-box/kit"
+	"github.com/mvity/go-box/x"
 	"github.com/natefinch/lumberjack"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
@@ -61,7 +61,7 @@ func LogApiInfo(ctx *gin.Context, err int8, result string) {
 	apiLogger.Info("Api invoke",
 		zap.String("method", ctx.Request.Method),
 		zap.String("url", ctx.Request.URL.String()),
-		zap.String("header", k.ToJSONString(ctx.Request.Header)),
+		zap.String("header", x.JsonToString(ctx.Request.Header)),
 		zap.String("body", ctx.GetString(GinBody)),
 		zap.Int8("err", err),
 		zap.Uint64("uid", ctx.GetUint64(GinUserId)),

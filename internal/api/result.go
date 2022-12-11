@@ -4,7 +4,7 @@ import (
 	"fmt"
 	ut "github.com/go-playground/universal-translator"
 	"github.com/go-playground/validator/v10"
-	"github.com/mvity/go-quickstart/internal/dao"
+	"github.com/mvity/go-quickstart/internal/app"
 	"time"
 )
 
@@ -96,7 +96,7 @@ func (r *Result) SetItems(items any) *Result {
 }
 
 // SetPager 设置分页响应数据
-func (r *Result) SetPager(paged *dao.Paged, items any) *Result {
+func (r *Result) SetPager(paged *app.Paged, items any) *Result {
 	if paged != nil && items != nil {
 		data := make(map[string]any)
 		data["pager"] = paged
@@ -107,7 +107,7 @@ func (r *Result) SetPager(paged *dao.Paged, items any) *Result {
 }
 
 // SetSummPager 设置分页和统计响应数据
-func (r *Result) SetSummPager(paged *dao.Paged, summ any, items any) *Result {
+func (r *Result) SetSummPager(paged *app.Paged, summ any, items any) *Result {
 	if paged != nil && summ != nil && items != nil {
 		data := make(map[string]any)
 		data["pager"] = paged

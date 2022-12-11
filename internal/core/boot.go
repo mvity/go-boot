@@ -3,7 +3,8 @@ package core
 import (
 	"github.com/mvity/go-quickstart/internal/api"
 	"github.com/mvity/go-quickstart/internal/app"
-	"github.com/mvity/go-quickstart/internal/dao"
+	"github.com/mvity/go-quickstart/internal/dao/mysql"
+	"github.com/mvity/go-quickstart/internal/dao/redis"
 	"log"
 )
 
@@ -17,10 +18,10 @@ func Boot(_api, _job, _wss bool, config string, port int) {
 	if err := app.InitLogger(); err != nil {
 		log.Panicf("Init Logger error, cause: %v\n", err)
 	}
-	if err := dao.InitMySQL(); err != nil {
+	if err := mysql.InitMySQL(); err != nil {
 		log.Panicf("Init MySQL error, cause: %v\n", err)
 	}
-	if err := dao.InitRedis(); err != nil {
+	if err := redis.InitRedis(); err != nil {
 		log.Panicf("Init Redis error, cause: %v\n", err)
 	}
 
@@ -47,10 +48,10 @@ func InitProject(config string) {
 	if err := app.InitConfig(config); err != nil {
 		log.Panicf("Init Config error, cause: %v\n", err)
 	}
-	if err := dao.InitMySQL(); err != nil {
+	if err := mysql.InitMySQL(); err != nil {
 		log.Panicf("Init MySQL error, cause: %v\n", err)
 	}
-	if err := dao.InitRedis(); err != nil {
+	if err := redis.InitRedis(); err != nil {
 		log.Panicf("Init Redis error, cause: %v\n", err)
 	}
 	log.Println("Init project datas success.")
