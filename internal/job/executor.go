@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/mvity/go-boot/internal/app"
-	"github.com/mvity/go-boot/internal/dao"
+	"github.com/mvity/go-boot/internal/dao/dbs"
 	rds2 "github.com/mvity/go-boot/internal/dao/rds"
 	"github.com/mvity/go-box/x"
 	"gorm.io/gorm"
@@ -43,7 +43,7 @@ func (e *executor) handle(now time.Time) {
 			app.LogSysInfo("Parse Task json error ", err)
 			continue
 		}
-		db := dao.MySQL.WithContext(context.Background())
+		db := dbs.MySQL.WithContext(context.Background())
 		switch node.Name("tag").String() {
 		case "TestTask":
 			go e.doExecTestTask(db, now, node.Name("id").String(), node.Name("info").String())

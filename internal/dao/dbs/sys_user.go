@@ -1,14 +1,13 @@
 package dbs
 
 import (
-	"github.com/mvity/go-boot/internal/dao"
 	"time"
 )
 
 // SysUser 用户信息
 type SysUser struct {
-	dao.Entity
-	dao.Operator
+	Entity
+	Operator
 	Type            int8      `gorm:"column:B001;not null;index;comment:用户类型"`
 	Name            string    `gorm:"column:B002;not null;index;size:128;comment:用户名称"`
 	LastLoginTime   time.Time `gorm:"column:B010;not null;comment:最后登录时间"`
