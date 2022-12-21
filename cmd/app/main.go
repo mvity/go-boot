@@ -75,7 +75,7 @@ var wssCmd = &cobra.Command{
 // 初始化项目运行必备条件
 var initCmd = &cobra.Command{
 	Use:   "init",
-	Short: "初始化项目结构",
+	Short: "初始化项目数据",
 	Long:  "同步数据库结构，刷新项目初始化配置信息",
 	Run: func(cmd *cobra.Command, args []string) {
 		core.InitProject(conf)

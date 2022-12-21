@@ -1,10 +1,10 @@
-package mysql
+package dao
 
 import (
 	"context"
 	"fmt"
 	"github.com/mvity/go-boot/internal/app"
-	"github.com/mvity/go-boot/internal/dao/redis/rds"
+	"github.com/mvity/go-boot/internal/dao/rds"
 	"github.com/mvity/go-box/x"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
@@ -18,7 +18,7 @@ import (
 
 var MySQL *gorm.DB
 
-var Context = context.Background()
+var MySQLContext = context.Background()
 
 // InitMySQL 初始化MySQL组件
 func InitMySQL() error {
@@ -100,7 +100,7 @@ func InitMySQL() error {
 // 所有回调之前
 func beforeCallback(db *gorm.DB) {
 	if db.Statement.Context == nil || db.Statement.Context.Err() != nil {
-		db.Statement.Context = Context
+		db.Statement.Context = MySQLContext
 	}
 }
 
@@ -133,14 +133,14 @@ func beforeCreateCallback(db *gorm.DB) {
 	if zyxCreateUid != nil {
 		val, zero := zyxCreateUid.ValueOf(db.Statement.Context, db.Statement.ReflectValue)
 		if zero || val == nil {
-			db.Statement.SetColumn("C008", ctxMap[app.GinUserId])
+			db.Statement.SetColumn("C008", ctxMap[app.GinUserID])
 		}
 	}
 	zyxUpdateUid := db.Statement.Schema.LookUpField("C009")
 	if zyxUpdateUid != nil {
 		val, zero := zyxUpdateUid.ValueOf(db.Statement.Context, db.Statement.ReflectValue)
 		if zero || val == nil {
-			db.Statement.SetColumn("C009", ctxMap[app.GinUserId])
+			db.Statement.SetColumn("C009", ctxMap[app.GinUserID])
 		}
 	}
 }
@@ -161,9 +161,9 @@ func beforeUpdateCallback(db *gorm.DB) {
 	if zyxUpdateUid != nil {
 		if ctxVal := db.Statement.Context.Value(app.GinContext); ctxVal != nil {
 			ctxMap := ctxVal.(map[string]string)
-			db.Statement.SetColumn("C009", x.ToInt64(ctxMap[app.GinUserId]))
+			db.Statement.SetColumn("C009", x.ToInt64(ctxMap[app.GinUserID]))
 		} else {
-			db.Statement.SetColumn("C009", app.PlatUserID)
+			db.Statement.SetColumn("C009", app.PlatformID)
 		}
 	}
 
@@ -201,10 +201,14 @@ type Entity struct {
 	ZyxUpdateTime time.Time `gorm:"column:C005;not null;index;comment:修改时间"`
 }
 
+func (e *Entity) GetIDString() string {
+	return x.ToString(e.ID)
+}
+
 // Operator 操作人相关字段
 type Operator struct {
-	ZyxCreateUid uint64 `gorm:"column:C008;not null;comment:创建人ID"`
-	ZyxUpdateUid uint64 `gorm:"column:C009;not null;comment:修改人ID"`
+	ZyxCreateUid uint64 `gorm:"column:C008;not null;index;comment:创建人ID"`
+	ZyxUpdateUid uint64 `gorm:"column:C009;not null;index;comment:修改人ID"`
 }
 
 // Query SQL查询对象

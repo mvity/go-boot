@@ -1,7 +1,7 @@
 package rds
 
 import (
-	"github.com/mvity/go-boot/internal/dao/redis"
+	"github.com/mvity/go-boot/internal/dao"
 	"github.com/mvity/go-box/x"
 	"time"
 )
@@ -38,9 +38,9 @@ func (s *smsCaptcha) GenerateCaptch(mob string, minute int) (string, string) {
 	code := x.RandomString(4, false, true)
 	info := s.getCaptchInfo(mob, code)
 
-	rkey := redis.DataPrefix + "Captch:Sms:" + info
-	redis.Redis.IncrBy(redis.Context, rkey, 0)
-	redis.Redis.Expire(redis.Context, rkey, time.Duration(minute)*time.Minute)
+	rkey := dao.RedisDataPrefix + "Captch:Sms:" + info
+	dao.Redis.IncrBy(dao.MySQLContext, rkey, 0)
+	dao.Redis.Expire(dao.MySQLContext, rkey, time.Duration(minute)*time.Minute)
 	return info, code
 }
 
@@ -63,20 +63,20 @@ func (s *smsCaptcha) ValidCaptch(mob string, code string, info string) bool {
 		return true
 	}
 
-	rkey := redis.DataPrefix + "Captch:Sms:" + info
+	rkey := dao.RedisDataPrefix + "Captch:Sms:" + info
 
-	if redis.Redis.Exists(redis.Context, rkey).Val() == 0 {
+	if dao.Redis.Exists(dao.MySQLContext, rkey).Val() == 0 {
 		return false
 	}
-	if redis.Redis.IncrBy(redis.Context, rkey, 0).Val() >= 6 {
-		redis.Redis.Del(redis.Context, rkey)
+	if dao.Redis.IncrBy(dao.MySQLContext, rkey, 0).Val() >= 6 {
+		dao.Redis.Del(dao.MySQLContext, rkey)
 		return false
 	}
 	flag := info == s.getCaptchInfo(mob, code)
 	if flag {
-		redis.Redis.Del(redis.Context, rkey)
+		dao.Redis.Del(dao.MySQLContext, rkey)
 	} else {
-		redis.Redis.IncrBy(redis.Context, rkey, 1)
+		dao.Redis.IncrBy(dao.MySQLContext, rkey, 1)
 	}
 	return flag
 }

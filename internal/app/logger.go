@@ -64,7 +64,7 @@ func LogApiInfo(ctx *gin.Context, err int8, result string) {
 		zap.String("header", x.JsonToString(ctx.Request.Header)),
 		zap.String("body", ctx.GetString(GinBody)),
 		zap.Int8("err", err),
-		zap.Uint64("uid", ctx.GetUint64(GinUserId)),
+		zap.Uint64("uid", ctx.GetUint64(GinUserID)),
 		zap.String("result", result),
 		zap.Duration("dur", time.Since(ctx.GetTime(GinTime))),
 	)

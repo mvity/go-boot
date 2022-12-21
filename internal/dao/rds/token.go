@@ -3,7 +3,7 @@ package rds
 import (
 	"fmt"
 	"github.com/mvity/go-boot/internal/app"
-	"github.com/mvity/go-boot/internal/dao/redis"
+	"github.com/mvity/go-boot/internal/dao"
 	"github.com/mvity/go-box/x"
 	"strconv"
 	"strings"
@@ -23,30 +23,30 @@ func (t *token) Login(userId uint64, tag string, minute int) string {
 
 	tval := strings.ToUpper(md5v+x.RandomString(16, true, true)) + "_" + suffix
 
-	ukey := redis.DataPrefix + "Token:U:" + strconv.FormatUint(userId, 10)
-	tkey := redis.DataPrefix + "Token:T:"
+	ukey := dao.RedisDataPrefix + "Token:U:" + strconv.FormatUint(userId, 10)
+	tkey := dao.RedisDataPrefix + "Token:T:"
 
 	// 清空当前已登录Token信息
 	if otv := t.GetToken(userId, tag); otv != "" {
-		if cmd := redis.Redis.Set(redis.Context, tkey+otv, "Killed", 10*time.Minute); cmd.Err() != nil || cmd.Val() != "OK" {
+		if cmd := dao.Redis.Set(dao.MySQLContext, tkey+otv, "Killed", 10*time.Minute); cmd.Err() != nil || cmd.Val() != "OK" {
 			panic(&app.RedisError{Message: "清空当前登录Token失败", Command: fmt.Sprintf("%v", cmd.Args())})
 		}
 	}
 	// 设置Token对应的UserId
-	if cmd := redis.Redis.Set(redis.Context, tkey+tval, strconv.FormatUint(userId, 10), time.Duration(minute)*time.Minute); cmd.Err() != nil || cmd.Val() != "OK" {
+	if cmd := dao.Redis.Set(dao.MySQLContext, tkey+tval, strconv.FormatUint(userId, 10), time.Duration(minute)*time.Minute); cmd.Err() != nil || cmd.Val() != "OK" {
 		panic(&app.RedisError{Message: "设置Token失败", Command: fmt.Sprintf("%v", cmd.Args())})
 	}
 	// 设置UserID和APP 对应的Token
-	if cmd := redis.Redis.HSet(redis.Context, ukey, tag, tval); cmd.Err() != nil {
+	if cmd := dao.Redis.HSet(dao.MySQLContext, ukey, tag, tval); cmd.Err() != nil {
 		panic(&app.RedisError{Message: "设置Token失败", Command: fmt.Sprintf("%v", cmd.Args())})
 	}
 	// 读取Ukey过期剩余秒数
-	if cmd := redis.Redis.TTL(redis.Context, ukey); cmd.Err() != nil {
+	if cmd := dao.Redis.TTL(dao.MySQLContext, ukey); cmd.Err() != nil {
 		panic(&app.RedisError{Message: "设置Token失败", Command: fmt.Sprintf("%v", cmd.Args())})
 	} else {
 		ttl := cmd.Val()
 		if ttl.Seconds() < float64(minute*60) {
-			if scmd := redis.Redis.Expire(redis.Context, ukey, time.Duration(minute)*time.Minute); scmd.Err() != nil {
+			if scmd := dao.Redis.Expire(dao.MySQLContext, ukey, time.Duration(minute)*time.Minute); scmd.Err() != nil {
 				panic(&app.RedisError{Message: "设置Token失败", Command: fmt.Sprintf("%v", scmd.Args())})
 			}
 		}
@@ -57,11 +57,11 @@ func (t *token) Login(userId uint64, tag string, minute int) string {
 
 // LogoutWithUserId 注销指定用户
 func (t *token) LogoutWithUserId(userId uint64) {
-	ukey := redis.DataPrefix + "Token:U:" + strconv.FormatUint(userId, 10)
-	for _, tval := range redis.Redis.HGetAll(redis.Context, ukey).Val() {
+	ukey := dao.RedisDataPrefix + "Token:U:" + strconv.FormatUint(userId, 10)
+	for _, tval := range dao.Redis.HGetAll(dao.MySQLContext, ukey).Val() {
 		t.clearToken(tval)
 	}
-	redis.Redis.Del(redis.Context, ukey)
+	dao.Redis.Del(dao.MySQLContext, ukey)
 }
 
 // LogoutWithToken 注销指定Token
@@ -71,8 +71,8 @@ func (t *token) LogoutWithToken(token string) {
 
 // GetToken 获取指定用户Token值
 func (t *token) GetToken(userId uint64, tag string) string {
-	ukey := redis.DataPrefix + "Token:U:" + strconv.FormatUint(userId, 10)
-	return redis.Redis.HGet(redis.Context, ukey, tag).Val()
+	ukey := dao.RedisDataPrefix + "Token:U:" + strconv.FormatUint(userId, 10)
+	return dao.Redis.HGet(dao.MySQLContext, ukey, tag).Val()
 }
 
 // GetUserId 获取指定Token用户ID
@@ -80,8 +80,8 @@ func (t *token) GetUserId(token string) int64 {
 	if strings.EqualFold(token, "guest") {
 		return 0
 	}
-	tkey := redis.DataPrefix + "Token:T:" + token
-	idStr := redis.Redis.Get(redis.Context, tkey).Val()
+	tkey := dao.RedisDataPrefix + "Token:T:" + token
+	idStr := dao.Redis.Get(dao.MySQLContext, tkey).Val()
 	if idStr == "" {
 		return 0
 	}
@@ -90,7 +90,7 @@ func (t *token) GetUserId(token string) int64 {
 	}
 	if val, err := strconv.ParseUint(idStr, 10, 64); err == nil {
 		if minute, err := strconv.ParseInt(strings.Split(token, "_")[1], 10, 64); err == nil && minute > 0 {
-			redis.Redis.Expire(redis.Context, tkey, time.Duration(minute)*time.Minute)
+			dao.Redis.Expire(dao.MySQLContext, tkey, time.Duration(minute)*time.Minute)
 		}
 		return int64(val)
 	}
@@ -100,13 +100,13 @@ func (t *token) GetUserId(token string) int64 {
 func (t *token) clearToken(token string) {
 	userId := t.GetUserId(token)
 	if userId > 0 {
-		ukey := redis.DataPrefix + "Token:U:" + strconv.FormatUint(uint64(userId), 10)
-		for tkey, tval := range redis.Redis.HGetAll(redis.Context, ukey).Val() {
+		ukey := dao.RedisDataPrefix + "Token:U:" + strconv.FormatUint(uint64(userId), 10)
+		for tkey, tval := range dao.Redis.HGetAll(dao.MySQLContext, ukey).Val() {
 			if tval == token {
-				redis.Redis.HDel(redis.Context, ukey, tkey)
+				dao.Redis.HDel(dao.MySQLContext, ukey, tkey)
 			}
 		}
 	}
-	tkey := redis.DataPrefix + "Token:T:" + token
-	redis.Redis.Del(redis.Context, tkey)
+	tkey := dao.RedisDataPrefix + "Token:T:" + token
+	dao.Redis.Del(dao.MySQLContext, tkey)
 }

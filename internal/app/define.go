@@ -13,5 +13,5 @@ const (
 	GinData    = "Gin_Data" // Gin请求内容，请求体原始内容，未解密
 	GinLogger  = "Gin_Log"  // 是否记录请求日志
 	GinEncrypt = "Gin_Aes"  // 是否进行AES加密
-	GinUserId  = "Gin_Uid"  // 当前请求用户ID
+	GinUserID  = "Gin_Uid"  // 当前请求用户ID
 )
