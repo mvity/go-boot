@@ -2,7 +2,7 @@
 app:
   debug: true
   api: https://xxxx-api.local.uugoi.com
-  log: C:/Code/Temp/xxxx/logs
+  log: C:/Code/Temp/go-boot/logs
 port:
   api: 54545
   ws: 56565
@@ -10,7 +10,7 @@ data:
   mysql:
     host: docker.srv
     port: 3306
-    database: xxxx_dev
+    database: go_boot_dev
     username: vity
     password: "P@ssw0rd"
     max-conn: 256

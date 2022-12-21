@@ -3,11 +3,13 @@ package core
 import (
 	"github.com/mvity/go-boot/internal/api"
 	"github.com/mvity/go-boot/internal/app"
+	"github.com/mvity/go-boot/internal/dao"
 	"github.com/mvity/go-boot/internal/dao/dbs"
 	"github.com/mvity/go-boot/internal/dao/rds"
 	"github.com/mvity/go-boot/internal/job"
 	"github.com/mvity/go-boot/internal/wss"
 	"log"
+	"os"
 )
 
 // Boot 启动入口
@@ -64,20 +66,21 @@ func Boot(_api, _job, _wss bool, config string, port int) {
 // InitProject 初始化项目
 func InitProject(config string) {
 	log.Println("Server version: ", Version)
-	log.Println("Now init project datas.")
+	log.Println("Now init project data.")
 	if err := app.InitConfig(config); err != nil {
 		log.Panicf("Init Config error, cause: %v\n", err)
+	}
+	if err := os.MkdirAll(app.Config.App.LogPath, os.ModePerm); err != nil {
+		log.Panicf("Init LogPath error, cause: %v\n", err)
+	}
+	if err := dao.InitMySQLDatabase(); err != nil {
+		log.Panicf("Init InitMySQLDatabase error, cause: %v\n", err)
 	}
 	if err := dbs.InitMySQL(); err != nil {
 		log.Panicf("Init MySQL error, cause: %v\n", err)
 	}
-	if err := rds.InitRedis(); err != nil {
-		log.Panicf("Init Redis error, cause: %v\n", err)
+	if err := dao.InitMySQLTable(); err != nil {
+		log.Panicf("Init InitMySQLTable error, cause: %v\n", err)
 	}
-
-	if err := dbs.InitMySQLEntity(); err != nil {
-		log.Panicf("Init MySQLEntity error, cause: %v\n", err)
-	}
-
 	log.Println("Init project datas success.")
 }
