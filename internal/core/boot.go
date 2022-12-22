@@ -2,11 +2,12 @@ package core
 
 import (
 	"github.com/mvity/go-boot/internal/api"
-	"github.com/mvity/go-boot/internal/app"
+	"github.com/mvity/go-boot/internal/conf"
 	"github.com/mvity/go-boot/internal/dao"
 	"github.com/mvity/go-boot/internal/dao/dbs"
 	"github.com/mvity/go-boot/internal/dao/rds"
 	"github.com/mvity/go-boot/internal/job"
+	"github.com/mvity/go-boot/internal/logs"
 	"github.com/mvity/go-boot/internal/wss"
 	"log"
 	"os"
@@ -16,10 +17,10 @@ import (
 func Boot(_api, _job, _wss bool, config string, port int) {
 	log.Println("Server version: ", Version)
 	log.Println("Server Run Module: ", "API [", _api, "]", "Job [", _job, "]", "WebSocket [", _wss, "]")
-	if err := app.InitConfig(config); err != nil {
+	if err := conf.InitConfig(config); err != nil {
 		log.Panicf("Init Config error, cause: %v\n", err)
 	}
-	if err := app.InitLogger(); err != nil {
+	if err := logs.InitLogger(); err != nil {
 		log.Panicf("Init Logger error, cause: %v\n", err)
 	}
 	if err := dbs.InitMySQL(); err != nil {
@@ -31,10 +32,10 @@ func Boot(_api, _job, _wss bool, config string, port int) {
 
 	if port > 0 {
 		if _api {
-			app.Config.Port.ApiPort = port
+			conf.Config.Port.ApiPort = port
 		}
 		if _wss {
-			app.Config.Port.WebSocketPort = port
+			conf.Config.Port.WebSocketPort = port
 		}
 	}
 	if _api {
@@ -67,10 +68,10 @@ func Boot(_api, _job, _wss bool, config string, port int) {
 func InitProject(config string) {
 	log.Println("Server version: ", Version)
 	log.Println("Now init project data.")
-	if err := app.InitConfig(config); err != nil {
+	if err := conf.InitConfig(config); err != nil {
 		log.Panicf("Init Config error, cause: %v\n", err)
 	}
-	if err := os.MkdirAll(app.Config.App.LogPath, os.ModePerm); err != nil {
+	if err := os.MkdirAll(conf.Config.App.LogPath, os.ModePerm); err != nil {
 		log.Panicf("Init LogPath error, cause: %v\n", err)
 	}
 	if err := dao.InitMySQLDatabase(); err != nil {

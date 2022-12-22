@@ -208,8 +208,11 @@ func FindSnapshot[T any](db *gorm.DB, id uint64) *T {
 }
 
 // findRecord 查询单条数据
-func findRecord[T any](db *gorm.DB, query *Query) *T {
+func findRecord[T any](db *gorm.DB, query *app.Query) *T {
 	var entity T
+	if !strings.Contains(strings.ToUpper(query.SQL), "LIMIT 1") {
+		query.AddSQL("LIMIT 1")
+	}
 	if db.Raw(query.SQL, query.Param...).Limit(1).Scan(&entity).RowsAffected <= 0 {
 		return nil
 	}
@@ -217,7 +220,7 @@ func findRecord[T any](db *gorm.DB, query *Query) *T {
 }
 
 // findRecords 查询多条数据
-func findRecords[T any](db *gorm.DB, query *Query) []*T {
+func findRecords[T any](db *gorm.DB, query *app.Query) []*T {
 	var entitys = make([]*T, 0)
 	db.Raw(query.SQL, query.Param...).Scan(&entitys)
 	return entitys
@@ -226,7 +229,7 @@ func findRecords[T any](db *gorm.DB, query *Query) []*T {
 // findPager 执行分页查询
 //
 //goland:noinspection ALL
-func findPager[T any](db *gorm.DB, query *Query) (*app.Paged, []*T) {
+func findPager[T any](db *gorm.DB, query *app.Query) (*app.Paged, []*T) {
 	var countSQL, querySQL string
 	cond := string([]rune(query.SQL)[strings.Index(query.SQL, " FROM ")+6:])
 	{

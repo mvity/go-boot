@@ -1,10 +1,4 @@
-package app
-
-import (
-	"github.com/mvity/go-box/x"
-	"gopkg.in/yaml.v2"
-	"os"
-)
+package conf
 
 type appConf struct {
 	Debug   bool   `yaml:"debug"`
@@ -38,15 +32,3 @@ type config struct {
 }
 
 var Config *config
-
-// InitConfig 初始化配置文件
-func InitConfig(configFilePath string) error {
-	pwd, _ := os.Getwd()
-	cfp := x.StringDefaultIfBlank(configFilePath, pwd+"./configs/conf.yaml")
-	bytes, err := os.ReadFile(cfp)
-	if err != nil {
-		return err
-	}
-	Config = new(config)
-	return yaml.Unmarshal(bytes, Config)
-}

@@ -3,7 +3,7 @@ package job
 import (
 	"errors"
 	"fmt"
-	"github.com/mvity/go-boot/internal/app"
+	"github.com/mvity/go-boot/internal/logs"
 	"github.com/robfig/cron/v3"
 )
 
@@ -36,7 +36,7 @@ func (f *fixed) addFunc() {
 	}); err != nil {
 		panic(errors.New(fmt.Sprintf("[%s] %s %v", "job.Fiexd", "Add [demo] f error", err)))
 	} else {
-		app.LogSysInfo(fmt.Sprintf("[%s] %s , EntryID: %v", "job.Fiexd", "Add [demo] f success", eid), nil)
+		logs.LogSysInfo(fmt.Sprintf("[%s] %s , EntryID: %v", "job.Fiexd", "Add [demo] f success", eid), nil)
 	}
 
 }

@@ -3,9 +3,9 @@ package job
 import (
 	"context"
 	"fmt"
-	"github.com/mvity/go-boot/internal/app"
 	"github.com/mvity/go-boot/internal/dao/dbs"
 	rds2 "github.com/mvity/go-boot/internal/dao/rds"
+	"github.com/mvity/go-boot/internal/logs"
 	"github.com/mvity/go-box/x"
 	"gorm.io/gorm"
 
@@ -37,10 +37,10 @@ func (e *executor) Stop() {
 func (e *executor) handle(now time.Time) {
 	tasks := rds2.Task.GetTasks(now)
 	for _, task := range tasks {
-		app.LogSysInfo(fmt.Sprintf("Exec task %v", task), nil)
+		logs.LogSysInfo(fmt.Sprintf("Exec task %v", task), nil)
 		node, err := x.JsonFromStringE(task)
 		if err != nil {
-			app.LogSysInfo("Parse Task json error ", err)
+			logs.LogSysInfo("Parse Task json error ", err)
 			continue
 		}
 		db := dbs.MySQL.WithContext(context.Background())
@@ -57,7 +57,7 @@ func (e *executor) handle(now time.Time) {
 func (*executor) doExecTestTask(db *gorm.DB, now time.Time, id string, info string) {
 	defer func() {
 		if err := recover(); err != nil {
-			app.LogSysInfo(fmt.Sprintf("Exec doExecTestTask Error on %v , info: %v \n", x.FormatDateTime(now), info), err.(error))
+			logs.LogSysInfo(fmt.Sprintf("Exec doExecTestTask Error on %v , info: %v \n", x.FormatDateTime(now), info), err.(error))
 		}
 	}()
 	if rds2.Task.IsHandled(now, id) {

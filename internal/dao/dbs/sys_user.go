@@ -19,10 +19,19 @@ type SysUser struct {
 	LockResumeTime  time.Time `gorm:"column:B022;not null;comment:解锁时间"`
 	LockUserID      uint64    `gorm:"column:B023;not null;comment:锁定人ID"`
 	LockCause       string    `gorm:"column:B024;not null;size:256;comment:锁定原因"`
-	LoginKey        string    `gorm:"column:B030;not null;index;size:32;comment:登录账号"`
-	LoginPassword   string    `gorm:"column:B031;not null;size:128;comment:登录密码"`
 }
 
+// TableName 数据表名称
 func (e *SysUser) TableName() string {
-	return "A001"
+	return "SYS001"
+}
+
+// GetEntity 实体对象
+func (e *SysUser) GetEntity() *Entity {
+	return &e.Entity
+}
+
+// GetExpire 缓存时长
+func (e *SysUser) GetExpire() time.Duration {
+	return 24 * time.Hour
 }

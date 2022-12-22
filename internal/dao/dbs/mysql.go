@@ -4,15 +4,14 @@ import (
 	"context"
 	"fmt"
 	"github.com/mvity/go-boot/internal/app"
+	"github.com/mvity/go-boot/internal/conf"
 	"github.com/mvity/go-boot/internal/dao/rds"
 	"github.com/mvity/go-box/x"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
 	"log"
-	"math"
 	"os"
-	"strings"
 	"time"
 )
 
@@ -26,16 +25,16 @@ func InitMySQL() error {
 	newLogger := logger.New(
 		log.New(os.Stdout, "\r\n", log.LstdFlags), // io writer（日志输出的目标，前缀和日志包含的内容——译者注）
 		logger.Config{
-			SlowThreshold:             time.Second,                                               // 慢 SQL 阈值
-			LogLevel:                  x.Ternary(app.Config.App.Debug, logger.Info, logger.Warn), // 日志级别
-			IgnoreRecordNotFoundError: true,                                                      // 忽略ErrRecordNotFound（记录未找到）错误
-			Colorful:                  true,                                                      // 彩色打印
+			SlowThreshold:             time.Second,                                                // 慢 SQL 阈值
+			LogLevel:                  x.Ternary(conf.Config.App.Debug, logger.Info, logger.Warn), // 日志级别
+			IgnoreRecordNotFoundError: true,                                                       // 忽略ErrRecordNotFound（记录未找到）错误
+			Colorful:                  true,                                                       // 彩色打印
 		},
 	)
 
 	dsn := fmt.Sprintf("%s:%s@tcp(%s:%d)/%s?charset=utf8mb4&parseTime=True&loc=Local",
-		app.Config.Data.MySQL.Username, app.Config.Data.MySQL.Password,
-		app.Config.Data.MySQL.Host, app.Config.Data.MySQL.Port, app.Config.Data.MySQL.Database)
+		conf.Config.Data.MySQL.Username, conf.Config.Data.MySQL.Password,
+		conf.Config.Data.MySQL.Host, conf.Config.Data.MySQL.Port, conf.Config.Data.MySQL.Database)
 	mysqlConfig := mysql.Config{
 		DSN:                       dsn,
 		DefaultStringSize:         255,   // string 类型字段的默认长度
@@ -61,9 +60,9 @@ func InitMySQL() error {
 	}
 
 	db, _ := MySQL.DB()
-	db.SetMaxOpenConns(app.Config.Data.MySQL.MaxConn)
-	db.SetMaxIdleConns(app.Config.Data.MySQL.MaxIdle)
-	db.SetConnMaxLifetime(time.Duration(app.Config.Data.MySQL.Timeout) * time.Minute)
+	db.SetMaxOpenConns(conf.Config.Data.MySQL.MaxConn)
+	db.SetMaxIdleConns(conf.Config.Data.MySQL.MaxIdle)
+	db.SetConnMaxLifetime(time.Duration(conf.Config.Data.MySQL.Timeout) * time.Minute)
 
 	if err := MySQL.Callback().Create().Before("gorm:create").Register("BeforeCreateCallback", beforeCreateCallback); err != nil {
 		return err
@@ -189,7 +188,7 @@ type DBEntity interface {
 	// GetEntity 获取实体基础结构体
 	GetEntity() *Entity
 	// GetExpire 获取缓存失效时间，0不缓存
-	GetExpire() *time.Duration
+	GetExpire() time.Duration
 }
 
 // Entity 实体基结构体
@@ -209,63 +208,4 @@ func (e *Entity) GetIDString() string {
 type Operator struct {
 	ZyxCreateUid uint64 `gorm:"column:C008;not null;index;comment:创建人ID"`
 	ZyxUpdateUid uint64 `gorm:"column:C009;not null;index;comment:修改人ID"`
-}
-
-// Query SQL查询对象
-type Query struct {
-	SQL   string // 业务SQL语句
-	Param []any  // 业务SQL参数
-	Order string // Order 语句
-
-	Page int   // 当前分页
-	Size int   // 分页数量
-	Time int64 // 初次查询时间
-
-	Total int // 总页码
-	Count int // 总记录数
-}
-
-// AddSQL 添加语句
-func (q *Query) AddSQL(sqlx string) *Query {
-	q.SQL += " " + strings.TrimSpace(sqlx)
-	return q
-}
-
-// AddOrder 添加语句
-func (q *Query) AddOrder(sqlx string) *Query {
-	q.Order = " " + strings.TrimSpace(sqlx)
-	q.SQL += q.Order
-	return q
-}
-
-// AddParam 添加参数
-func (q *Query) AddParam(param any) *Query {
-	q.Param = append(q.Param, param)
-	return q
-}
-
-// AddSQLParam 添加语句和参数
-func (q *Query) AddSQLParam(sqlx string, param ...any) *Query {
-	q.AddSQL(sqlx)
-	for _, a := range param {
-		q.AddParam(a)
-	}
-	return q
-}
-
-// Result 生成分页结果
-func (q *Query) Result() *app.Paged {
-	var total = 1
-	if q.Count > 0 {
-		total = int(math.Ceil(float64(q.Count) / (float64(q.Size))))
-	}
-	if q.Page == 1 {
-		q.Time = time.Now().UnixMilli()
-	}
-	return &app.Paged{
-		Page:  q.Page,
-		Time:  q.Time,
-		Total: total,
-		Count: q.Count,
-	}
 }
