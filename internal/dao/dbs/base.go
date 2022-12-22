@@ -248,5 +248,5 @@ func findPager[T any](db *gorm.DB, query *app.Query) (*app.Paged, []*T) {
 		querySQL = tmp + "INNER JOIN (SELECT C001 FROM " + cond + limit + ") AS TMP USING(C001)" + query.Order
 		db.Raw(querySQL, query.Param...).Scan(&entitys)
 	}
-	return query.Result(), entitys
+	return query.GenResult(), entitys
 }
