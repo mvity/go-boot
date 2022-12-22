@@ -2,36 +2,42 @@ package api
 
 import (
 	"github.com/gin-gonic/gin"
+	"github.com/mvity/go-boot/internal/app"
+	"github.com/mvity/go-boot/internal/logs"
+	"github.com/mvity/go-box/x"
+	"net/http"
 	"strings"
 )
 
-// Gin 错误定义
-const (
-	GinSignError        int8 = 10 // 签名校验错误
-	GinTimeError        int8 = 11 // 客户端时间错误
-	GinVersionError     int8 = 12 // 客户端版本过低
-	GinServerClosed     int8 = 13 // 服务端暂停服务
-	GinParamError       int8 = 14 // 参数校验失败
-	GinAuthError        int8 = 15 // 身份鉴权失败
-	GinActionError      int8 = 16 // 无接口操作权限
-	GinDataError        int8 = 17 // 无数据操作权限
-	GinNotFound         int8 = 18 // 未找到匹配接口
-	GinMustParam        int8 = 19 // 缺少必要参数
-	GinApiStop          int8 = 20 // 接口已停用
-	GinApiLock          int8 = 21 // 请求业务处理中
-	GinSysError         int8 = 22 // 系统处理异常
-	GinTransactionError int8 = 99 // 数据处理异常
-)
-
 // Controller 控制器模型
-type Controller func(ctx *gin.Context) *Result
+type Controller func(ctx *gin.Context) *app.Result
+
+// 统一控制器模型
+func wrapper(controller Controller) func(ctx *gin.Context) {
+	return func(ctx *gin.Context) {
+		result := controller(ctx)
+		if result != nil {
+			noAES := ctx.GetBool(app.GinEncrypt) // 是否启用AES加密
+			if noAES {
+				ctx.JSON(http.StatusOK, result)
+			} else {
+				ctime := ctx.Query("time")
+				reqid := ctx.Query("reqid")
+				key := x.MD5String(ctime + reqid)
+				iv := x.MD5String(key)[8:24]
+				ctx.String(http.StatusOK, x.AESEncrypt(key, iv, x.JsonToString(result)))
+			}
+			logs.LogApiInfo(ctx, result.Status.Error, x.JsonToString(result))
+		}
+	}
+}
 
 // Index 根请求
-func Index(*gin.Context) *Result {
-	return Fail(GinApiStop).SetMessage("未开放此接口")
+func Index(*gin.Context) *app.Result {
+	return app.Fail(app.GinApiStop).SetMessage("未开放此接口")
 }
 
 // NotFound 404
-func NotFound(ctx *gin.Context) *Result {
-	return Fail(GinNotFound).SetMessage("URI: [ " + strings.Split(ctx.Request.RequestURI, "?")[0] + " ] 无效")
+func NotFound(ctx *gin.Context) *app.Result {
+	return app.Fail(app.GinNotFound).SetMessage("URI: [ " + strings.Split(ctx.Request.RequestURI, "?")[0] + " ] 无效")
 }

@@ -229,7 +229,7 @@ func findRecords[T any](db *gorm.DB, query *app.Query) []*T {
 // findPager 执行分页查询
 //
 //goland:noinspection ALL
-func findPager[T any](db *gorm.DB, query *app.Query) (*app.Paged, []*T) {
+func findPager[T any](db *gorm.DB, query *app.Query) (*app.Pager, []*T) {
 	var countSQL, querySQL string
 	cond := string([]rune(query.SQL)[strings.Index(query.SQL, " FROM ")+6:])
 	{
@@ -238,15 +238,15 @@ func findPager[T any](db *gorm.DB, query *app.Query) (*app.Paged, []*T) {
 		countSQL = strings.Split(countSQL, "ORDER BY")[0]
 		var counter int
 		db.Raw(countSQL, query.Param...).Scan(&counter)
-		query.Count = counter
+		query.Rows = counter
 	}
 	var entitys = make([]*T, 0)
-	if query.Count > 0 && query.Count >= (query.Page-1)*query.Size {
+	if query.Rows > 0 && query.Rows >= (query.Page-1)*query.Size {
 		// 查询
 		tmp := strings.Split(query.SQL, "WHERE")[0]
 		limit := " LIMIT " + strconv.Itoa(query.Size*(query.Page-1)) + " , " + strconv.Itoa(query.Size)
 		querySQL = tmp + "INNER JOIN (SELECT C001 FROM " + cond + limit + ") AS TMP USING(C001)" + query.Order
 		db.Raw(querySQL, query.Param...).Scan(&entitys)
 	}
-	return query.GenResult(), entitys
+	return query.GenPager(), entitys
 }
