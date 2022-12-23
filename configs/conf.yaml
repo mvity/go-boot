@@ -4,8 +4,8 @@ app:
   api: https://xxxx-api.local.uugoi.com
   log: C:/Code/Temp/go-boot/logs
 port:
-  api: 54545
-  ws: 56565
+  api: 39898
+  ws: 39899
 data:
   mysql:
     host: docker.srv

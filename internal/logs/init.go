@@ -14,15 +14,15 @@ var (
 
 // InitLogger 初始化日志记录器
 func InitLogger() error {
-	handleLogger(apiLogger, "api")
-	handleLogger(jobLogger, "job")
-	handleLogger(wssLogger, "wss")
-	handleLogger(sysLogger, "sys")
-	handleLogger(extLogger, "ext")
+	apiLogger = handleLogger("api")
+	jobLogger = handleLogger("job")
+	wssLogger = handleLogger("wss")
+	sysLogger = handleLogger("sys")
+	extLogger = handleLogger("ext")
 	return nil
 }
 
-func handleLogger(logger *zap.Logger, tag string) {
+func handleLogger(tag string) *zap.Logger {
 
 	encoderConfig := zap.NewProductionEncoderConfig()
 	encoderConfig.EncodeTime = zapcore.ISO8601TimeEncoder
@@ -37,10 +37,11 @@ func handleLogger(logger *zap.Logger, tag string) {
 		LocalTime:  true,
 	})
 	core := zapcore.NewCore(encoder, syncer, zapcore.DebugLevel)
-	logger = zap.New(core, zap.AddCaller())
+	logger := zap.New(core, zap.AddCaller())
 	defer func(logger *zap.Logger) {
 		if err := logger.Sync(); err != nil {
 			log.Fatalln(err)
 		}
 	}(logger)
+	return logger
 }
