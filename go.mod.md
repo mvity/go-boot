@@ -8,6 +8,10 @@ go get -u github.com/mvity/go-box
 
 go get -u github.com/gin-gonic/gin
 
+## Gorilla Websocket
+
+go get -u github.com/gorilla/websocket
+
 ## Gorm 数据库框架(MySQL)
 
 go get -u gorm.io/gorm
