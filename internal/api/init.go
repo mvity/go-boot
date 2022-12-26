@@ -7,6 +7,7 @@ import (
 	"github.com/mvity/go-box/x"
 )
 
+// InitApiService 启动Api服务
 func InitApiService() error {
 	gin.SetMode(gin.ReleaseMode)
 

@@ -12,7 +12,7 @@ import (
 // Controller 控制器模型
 type Controller func(ctx *gin.Context) *app.Result
 
-// 统一控制器模型
+// wrapper 封装控制器方法
 func wrapper(controller Controller) func(ctx *gin.Context) {
 	return func(ctx *gin.Context) {
 		result := controller(ctx)

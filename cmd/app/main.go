@@ -42,7 +42,7 @@ var rootCmd = &cobra.Command{
 	},
 }
 
-// REST接口服务启动命令
+// API接口服务启动命令
 var apiCmd = &cobra.Command{
 	Use:   "api",
 	Short: "API接口服务",
