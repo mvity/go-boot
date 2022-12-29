@@ -15,7 +15,7 @@ import (
 	"github.com/mvity/go-boot/internal/dao/rds"
 	"github.com/mvity/go-boot/internal/job"
 	"github.com/mvity/go-boot/internal/logs"
-	"github.com/mvity/go-boot/internal/wss"
+	"github.com/mvity/go-boot/internal/ws"
 	"log"
 	"os"
 )
@@ -62,7 +62,7 @@ func Boot(_api, _job, _wss bool, config string, port int) {
 	}
 
 	if _wss {
-		if err := wss.InitWssService(); err != nil {
+		if err := ws.InitWssService(); err != nil {
 			log.Panicf("Init WSS Service error, cause: %v\n", err)
 		} else {
 			log.Println("Start WSS Service success.")

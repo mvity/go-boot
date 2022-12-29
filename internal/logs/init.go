@@ -16,14 +16,14 @@ import (
 )
 
 var (
-	apiLogger, jobLogger, wssLogger, sysLogger, extLogger *zap.Logger
+	apiLogger, jobLogger, wsLogger, sysLogger, extLogger *zap.Logger
 )
 
 // InitLogger 初始化日志记录器
 func InitLogger() error {
 	apiLogger = handleLogger("api")
 	jobLogger = handleLogger("job")
-	wssLogger = handleLogger("wss")
+	wsLogger = handleLogger("ws")
 	sysLogger = handleLogger("sys")
 	extLogger = handleLogger("ext")
 	return nil

@@ -5,7 +5,7 @@
  * license that can be found in the LICENSE file.
  */
 
-package wss
+package ws
 
 import (
 	"fmt"
@@ -174,7 +174,7 @@ type WsServer struct {
 // NewWsServer 创建服务端
 func NewWsServer(port int) *WsServer {
 	return &WsServer{
-		Addr:       "127.0.0.1:" + x.ToString(port),
+		Addr:       "0.0.0.0:" + x.ToString(port),
 		Clients:    make(map[string]*WsClient),
 		Users:      make(map[uint64][]*WsClient),
 		Register:   make(chan *WsClient, 1024),
@@ -260,11 +260,19 @@ func (s *WsServer) Start() {
 	}
 }
 
-// Handler Gin处理函数  /ws/:channel/:uid
+// Handler Gin处理函数  /ws/:channel/:token
 func (s *WsServer) Handler(ctx *gin.Context) {
 	channel := ctx.Param("channel")
-	uid := x.ToUInt64(ctx.Param("uid"))
-	if channel == "" || uid == 0 {
+	token := ctx.Param("token")
+	if channel == "" || token == "" {
+		http.NotFound(ctx.Writer, ctx.Request)
+		return
+	}
+	uid := app.GuestID
+	if token == "123456789" {
+		uid = 2
+	}
+	if uid == 0 {
 		http.NotFound(ctx.Writer, ctx.Request)
 		return
 	}

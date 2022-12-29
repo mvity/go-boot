@@ -71,7 +71,7 @@ var jobCmd = &cobra.Command{
 
 // WebSocket服务启动命令
 var wssCmd = &cobra.Command{
-	Use:   "wss",
+	Use:   "ws",
 	Short: "WebSocket 服务",
 	Long:  "WebSocket 服务",
 	Run: func(cmd *cobra.Command, args []string) {

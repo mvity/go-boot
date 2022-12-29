@@ -5,7 +5,7 @@
  * license that can be found in the LICENSE file.
  */
 
-package wss
+package ws
 
 import (
 	"github.com/gin-gonic/gin"
@@ -26,7 +26,7 @@ func InitWssService() error {
 
 	go Server.Start()
 
-	engine.GET("/ws/:channel/:uid", Server.Handler)
+	engine.GET("/ws/:channel/:token", Server.Handler)
 
 	logs.LogSysInfo("Start WebSocket service success, Port: "+x.ToString(conf.Config.Port.WebSocketPort), nil)
 	return engine.Run(":" + x.ToString(conf.Config.Port.WebSocketPort))

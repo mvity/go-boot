@@ -47,7 +47,7 @@ func LogWssInfo(addr string, userId uint64, message string) {
 		log.Printf("[INFO] Wss [%s] , UserId: %v , %v", addr, userId, message)
 	}
 	// 文件记录
-	wssLogger.Info("Wss invoke",
+	wsLogger.Info("Wss invoke",
 		zap.String("Addr", addr),
 		zap.Uint64("UserId", userId),
 		zap.String("Message", message),
