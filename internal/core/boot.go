@@ -22,8 +22,8 @@ import (
 
 // Boot 启动入口
 func Boot(_api, _job, _wss bool, config string, port int) {
-	log.Println("WsServer version: ", Version)
-	log.Println("WsServer Run Module: ", "API [", _api, "]", "Job [", _job, "]", "WebSocket [", _wss, "]")
+	log.Println("WebsocketServer version: ", Version)
+	log.Println("WebsocketServer Run Module: ", "API [", _api, "]", "Job [", _job, "]", "WebSocket [", _wss, "]")
 	if err := conf.InitConfig(config); err != nil {
 		log.Panicf("Init Config error, cause: %v\n", err)
 	}
@@ -73,7 +73,7 @@ func Boot(_api, _job, _wss bool, config string, port int) {
 
 // InitProject 初始化项目
 func InitProject(config string) {
-	log.Println("WsServer version: ", Version)
+	log.Println("WebsocketServer version: ", Version)
 	log.Println("Now init project data.")
 	if err := conf.InitConfig(config); err != nil {
 		log.Panicf("Init Config error, cause: %v\n", err)

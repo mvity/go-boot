@@ -21,8 +21,8 @@ import (
 	"time"
 )
 
-// WsClient Websocket 客户端
-type WsClient struct {
+// WebsocketClient Websocket 客户端
+type WebsocketClient struct {
 	ID             uint64          // 客户端ID
 	Addr           string          // 客户端地址
 	Connection     *websocket.Conn // 客户端连接会话
@@ -35,9 +35,9 @@ type WsClient struct {
 }
 
 // NewWsClient 创建客户端
-func NewWsClient(conn *websocket.Conn, channel string, userId uint64) *WsClient {
+func NewWsClient(conn *websocket.Conn, channel string, userId uint64) *WebsocketClient {
 	now := x.ToUInt64(time.Now().UnixMilli())
-	return &WsClient{
+	return &WebsocketClient{
 		ID:             app.IDWorker.GetID(),
 		Addr:           conn.RemoteAddr().String(),
 		Connection:     conn,
@@ -51,12 +51,12 @@ func NewWsClient(conn *websocket.Conn, channel string, userId uint64) *WsClient 
 }
 
 // GetClientKey 获取客户端标识
-func (c *WsClient) GetClientKey() string {
+func (c *WebsocketClient) GetClientKey() string {
 	return fmt.Sprintf("%v_%v", strings.ToUpper(c.Channel), c.UserId)
 }
 
 // Read 读取客户端数据
-func (c *WsClient) Read() {
+func (c *WebsocketClient) Read() {
 	defer func() {
 		Server.UnRegister <- c
 		logs.LogWssInfo(c.Addr, c.UserId, fmt.Sprintf("Disconnect."))
@@ -79,7 +79,7 @@ func (c *WsClient) Read() {
 }
 
 // Write 向客户端写入数据
-func (c *WsClient) Write() {
+func (c *WebsocketClient) Write() {
 	defer func() {
 		logs.LogWssInfo(c.Addr, c.UserId, fmt.Sprintf("Disconnect."))
 		if err := c.Connection.Close(); err != nil {
@@ -112,7 +112,7 @@ func (c *WsClient) Write() {
 }
 
 // Close 关闭客户端连接
-func (c *WsClient) Close() {
+func (c *WebsocketClient) Close() {
 	err := c.Connection.Close()
 	if err != nil {
 		return
@@ -121,7 +121,7 @@ func (c *WsClient) Close() {
 }
 
 // Handle 处理收到消息
-func (c *WsClient) Handle(message string) {
+func (c *WebsocketClient) Handle(message string) {
 	c.DoHeartbeat(x.ToUInt64(time.Now().UnixMilli()))
 	logs.LogWssInfo(c.Addr, c.UserId, fmt.Sprintf("Recv Data: %v", message))
 	if "ping" == strings.ToLower(message) {
@@ -130,7 +130,7 @@ func (c *WsClient) Handle(message string) {
 }
 
 // Send 发送信息
-func (c *WsClient) Send(message string) {
+func (c *WebsocketClient) Send(message string) {
 	if c == nil {
 		return
 	}
@@ -146,45 +146,45 @@ func (c *WsClient) Send(message string) {
 }
 
 // DoAuth 执行鉴权
-func (c *WsClient) DoAuth() {
+func (c *WebsocketClient) DoAuth() {
 	c.Auth = true
 }
 
 // DoHeartbeat 执行心跳操作
-func (c *WsClient) DoHeartbeat(now uint64) {
+func (c *WebsocketClient) DoHeartbeat(now uint64) {
 	c.HeartbeatTime = now
 }
 
 // CheckAlive 检查是否存活
-func (c *WsClient) CheckAlive() bool {
+func (c *WebsocketClient) CheckAlive() bool {
 	return c.HeartbeatTime+30*1000 >= x.ToUInt64(time.Now().UnixMilli())
 }
 
-// WsServer Websocket 服务端
-type WsServer struct {
-	Addr       string                 // 服务端地址
-	Clients    map[string]*WsClient   // 客户端映射池
-	Users      map[uint64][]*WsClient // 用户客户端关系
-	Lock       sync.RWMutex           // 客户端映射池读写锁
-	Register   chan *WsClient         // 客户端连接
-	UnRegister chan *WsClient         // 客户端断开
-	Outbox     chan []byte            // 待发箱，等待发送的广播数据
+// WebsocketServer Websocket 服务端
+type WebsocketServer struct {
+	Addr       string                        // 服务端地址
+	Clients    map[string]*WebsocketClient   // 客户端映射池
+	Users      map[uint64][]*WebsocketClient // 用户客户端关系
+	Lock       sync.RWMutex                  // 客户端映射池读写锁
+	Register   chan *WebsocketClient         // 客户端连接
+	UnRegister chan *WebsocketClient         // 客户端断开
+	Outbox     chan []byte                   // 待发箱，等待发送的广播数据
 }
 
 // NewWsServer 创建服务端
-func NewWsServer(port int) *WsServer {
-	return &WsServer{
+func NewWsServer(port int) *WebsocketServer {
+	return &WebsocketServer{
 		Addr:       "0.0.0.0:" + x.ToString(port),
-		Clients:    make(map[string]*WsClient),
-		Users:      make(map[uint64][]*WsClient),
-		Register:   make(chan *WsClient, 1024),
-		UnRegister: make(chan *WsClient, 1024),
+		Clients:    make(map[string]*WebsocketClient),
+		Users:      make(map[uint64][]*WebsocketClient),
+		Register:   make(chan *WebsocketClient, 1024),
+		UnRegister: make(chan *WebsocketClient, 1024),
 		Outbox:     make(chan []byte, 1024),
 	}
 }
 
 // AddClient 添加客户端
-func (s *WsServer) AddClient(client *WsClient) {
+func (s *WebsocketServer) AddClient(client *WebsocketClient) {
 	s.Lock.Lock()
 	defer s.Lock.Unlock()
 	if old := s.Clients[client.GetClientKey()]; old != nil {
@@ -193,7 +193,7 @@ func (s *WsServer) AddClient(client *WsClient) {
 	s.Clients[client.GetClientKey()] = client
 	ucs := s.Users[client.UserId]
 	if ucs == nil {
-		ucs = make([]*WsClient, 0)
+		ucs = make([]*WebsocketClient, 0)
 	}
 	ucs = append(ucs, client)
 	s.Users[client.UserId] = ucs
@@ -201,12 +201,12 @@ func (s *WsServer) AddClient(client *WsClient) {
 }
 
 // DelClient 移出客户端
-func (s *WsServer) DelClient(client *WsClient) {
+func (s *WebsocketServer) DelClient(client *WebsocketClient) {
 	s.Lock.Lock()
 	defer s.Lock.Unlock()
 	delete(s.Clients, client.GetClientKey())
 	ucs := s.Users[client.UserId]
-	_ucs := make([]*WsClient, 0)
+	_ucs := make([]*WebsocketClient, 0)
 	for _, uc := range ucs {
 		if uc.ID != client.ID {
 			_ucs = append(_ucs, uc)
@@ -221,12 +221,12 @@ func (s *WsServer) DelClient(client *WsClient) {
 }
 
 // GetClient 获取指定通道和UserID的连接
-func (s *WsServer) GetClient(channel string, userId uint64) *WsClient {
+func (s *WebsocketServer) GetClient(channel string, userId uint64) *WebsocketClient {
 	return s.Clients[fmt.Sprintf("%v_%v", strings.ToUpper(channel), userId)]
 }
 
 // CheckClientAlive 检查客户端是否存活
-func (s *WsServer) CheckClientAlive() {
+func (s *WebsocketServer) CheckClientAlive() {
 	logs.LogWssInfo(s.Addr, app.PlatformID, "Current clients : "+x.ToString(len(s.Clients))+", "+x.ToString(len(s.Users)))
 	for _, client := range s.Clients {
 		if !client.CheckAlive() {
@@ -237,7 +237,7 @@ func (s *WsServer) CheckClientAlive() {
 }
 
 // Start 启动服务端
-func (s *WsServer) Start() {
+func (s *WebsocketServer) Start() {
 	go s.CheckClientAlive()
 	for {
 		select {
@@ -261,7 +261,7 @@ func (s *WsServer) Start() {
 }
 
 // Handler Gin处理函数  /ws/:channel/:token
-func (s *WsServer) Handler(ctx *gin.Context) {
+func (s *WebsocketServer) Handler(ctx *gin.Context) {
 	channel := ctx.Param("channel")
 	token := ctx.Param("token")
 	if channel == "" || token == "" {

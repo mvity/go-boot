@@ -14,7 +14,7 @@ import (
 	"github.com/mvity/go-box/x"
 )
 
-var Server *WsServer
+var Server *WebsocketServer
 
 // InitWssService 启动WebSocket服务
 func InitWssService() error {
