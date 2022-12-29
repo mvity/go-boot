@@ -44,7 +44,7 @@ func LogApiInfo(ctx *gin.Context, err int8, result string) {
 func LogWssInfo(addr string, userId uint64, message string) {
 	// 控制台输出
 	if conf.Config.App.Debug {
-		log.Printf("[INFO] Wss [%s] , UserId: %v , Message : %v", addr, userId, message)
+		log.Printf("[INFO] Wss [%s] , UserId: %v , %v", addr, userId, message)
 	}
 	// 文件记录
 	wssLogger.Info("Wss invoke",

@@ -73,8 +73,7 @@ func (c *WsClient) Read() {
 			if mt == websocket.CloseMessage {
 				break
 			}
-
-			HandlerMessage(c, string(message))
+			c.Handle(string(message))
 		}
 	}
 }
@@ -121,6 +120,15 @@ func (c *WsClient) Close() {
 	close(c.Outbox)
 }
 
+// Handle 处理收到消息
+func (c *WsClient) Handle(message string) {
+	c.DoHeartbeat(x.ToUInt64(time.Now().UnixMilli()))
+	logs.LogWssInfo(c.Addr, c.UserId, fmt.Sprintf("Recv Data: %v", message))
+	if "ping" == strings.ToLower(message) {
+		c.Send("pong")
+	}
+}
+
 // Send 发送信息
 func (c *WsClient) Send(message string) {
 	if c == nil {
@@ -133,6 +141,8 @@ func (c *WsClient) Send(message string) {
 	}()
 	c.DoHeartbeat(x.ToUInt64(time.Now().UnixMilli()))
 	c.Outbox <- []byte(message)
+	logs.LogWssInfo(c.Addr, c.UserId, fmt.Sprintf("Send Data: %v", message))
+
 }
 
 // DoAuth 执行鉴权
@@ -147,11 +157,12 @@ func (c *WsClient) DoHeartbeat(now uint64) {
 
 // CheckAlive 检查是否存活
 func (c *WsClient) CheckAlive() bool {
-	return c.HeartbeatTime+30*1000 <= x.ToUInt64(time.Now().UnixMilli())
+	return c.HeartbeatTime+30*1000 >= x.ToUInt64(time.Now().UnixMilli())
 }
 
 // WsServer Websocket 服务端
 type WsServer struct {
+	Addr       string                 // 服务端地址
 	Clients    map[string]*WsClient   // 客户端映射池
 	Users      map[uint64][]*WsClient // 用户客户端关系
 	Lock       sync.RWMutex           // 客户端映射池读写锁
@@ -161,8 +172,9 @@ type WsServer struct {
 }
 
 // NewWsServer 创建服务端
-func NewWsServer() *WsServer {
+func NewWsServer(port int) *WsServer {
 	return &WsServer{
+		Addr:       "127.0.0.1:" + x.ToString(port),
 		Clients:    make(map[string]*WsClient),
 		Users:      make(map[uint64][]*WsClient),
 		Register:   make(chan *WsClient, 1024),
@@ -200,7 +212,12 @@ func (s *WsServer) DelClient(client *WsClient) {
 			_ucs = append(_ucs, uc)
 		}
 	}
-	s.Users[client.UserId] = _ucs
+	if len(_ucs) == 0 {
+		delete(s.Users, client.UserId)
+	} else {
+		s.Users[client.UserId] = _ucs
+	}
+	client.Close()
 }
 
 // GetClient 获取指定通道和UserID的连接
@@ -210,9 +227,10 @@ func (s *WsServer) GetClient(channel string, userId uint64) *WsClient {
 
 // CheckClientAlive 检查客户端是否存活
 func (s *WsServer) CheckClientAlive() {
+	logs.LogWssInfo(s.Addr, app.PlatformID, "Current clients : "+x.ToString(len(s.Clients))+", "+x.ToString(len(s.Users)))
 	for _, client := range s.Clients {
 		if !client.CheckAlive() {
-			client.Close()
+			s.DelClient(client)
 		}
 	}
 	time.AfterFunc(30*time.Second, s.CheckClientAlive)

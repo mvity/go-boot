@@ -22,7 +22,7 @@ func InitWssService() error {
 
 	engine := gin.New()
 
-	Server = NewWsServer()
+	Server = NewWsServer(conf.Config.Port.WebSocketPort)
 
 	go Server.Start()
 
