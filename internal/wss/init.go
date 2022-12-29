@@ -14,13 +14,19 @@ import (
 	"github.com/mvity/go-box/x"
 )
 
+var Server *WsServer
+
 // InitWssService 启动WebSocket服务
 func InitWssService() error {
 	gin.SetMode(gin.ReleaseMode)
 
 	engine := gin.New()
 
-	initDevCmds(engine)
+	Server = NewWsServer()
+
+	go Server.Start()
+
+	engine.GET("/ws/:channel/:uid", Server.Handler)
 
 	logs.LogSysInfo("Start WebSocket service success, Port: "+x.ToString(conf.Config.Port.WebSocketPort), nil)
 	return engine.Run(":" + x.ToString(conf.Config.Port.WebSocketPort))

@@ -40,6 +40,20 @@ func LogApiInfo(ctx *gin.Context, err int8, result string) {
 	)
 }
 
+// LogWssInfo 记录Websocket日志
+func LogWssInfo(addr string, userId uint64, message string) {
+	// 控制台输出
+	if conf.Config.App.Debug {
+		log.Printf("[INFO] Wss [%s] , UserId: %v , Message : %v", addr, userId, message)
+	}
+	// 文件记录
+	wssLogger.Info("Wss invoke",
+		zap.String("Addr", addr),
+		zap.Uint64("UserId", userId),
+		zap.String("Message", message),
+	)
+}
+
 // LogExtInfo 记录请求第三方接口日志
 func LogExtInfo(api string, uri string, param string, response string, status int, dur time.Duration) {
 	// 控制台输出
