@@ -1,5 +1,5 @@
 /*
- * Copyright © 2021 - 2022 vity <vityme@icloud.com>.
+ * Copyright © 2021 - 2023 vity <vityme@icloud.com>.
  *
  * Use of this source code is governed by an MIT-style
  * license that can be found in the LICENSE file.
@@ -16,13 +16,13 @@ import (
 	"strings"
 )
 
-// Controller 控制器模型
-type Controller func(ctx *gin.Context) *app.Result
+// handler 控制器方法
+type handler func(ctx *gin.Context) *app.Result
 
 // wrapper 封装控制器方法
-func wrapper(controller Controller) func(ctx *gin.Context) {
+func wrapper(handler handler) func(ctx *gin.Context) {
 	return func(ctx *gin.Context) {
-		result := controller(ctx)
+		result := handler(ctx)
 		if result != nil {
 			noAES := ctx.GetBool(app.GinEncrypt) // 是否启用AES加密
 			if noAES {

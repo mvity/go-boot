@@ -8,20 +8,16 @@ port:
   ws: 39899
 data:
   mysql:
-    host: docker.srv
-    port: 3306
-    database: go_boot_dev
-    username: vity
-    password: "P@ssw0rd"
-    max-conn: 256
+    dsn: "vity:P@ssw0rd@tcp(docker.srv:3306)/go_boot_dev?charset=utf8mb4&parseTime=True&loc=Local"
+    max-open: 256
     max-idle: 4
-    timeout: 60
+    max-idle-time: 30
+    max-conn-lifetime: 60
   redis:
-    host: docker.srv
-    port: 6379
+    addr: docker.srv:6379
     database: 0
     username: ""
     password: ""
-    max-conn: 16
-    max-idle: 4
-    timeout: 5
+    min-idle: 2
+    max-idle: 8
+    prefix: GoBoot

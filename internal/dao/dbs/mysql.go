@@ -1,5 +1,5 @@
 /*
- * Copyright © 2021 - 2022 vity <vityme@icloud.com>.
+ * Copyright © 2021 - 2023 vity <vityme@icloud.com>.
  *
  * Use of this source code is governed by an MIT-style
  * license that can be found in the LICENSE file.
@@ -9,7 +9,6 @@ package dbs
 
 import (
 	"context"
-	"fmt"
 	"github.com/mvity/go-boot/internal/app"
 	"github.com/mvity/go-boot/internal/conf"
 	"github.com/mvity/go-boot/internal/dao/rds"
@@ -39,11 +38,8 @@ func InitMySQL() error {
 		},
 	)
 
-	dsn := fmt.Sprintf("%s:%s@tcp(%s:%d)/%s?charset=utf8mb4&parseTime=True&loc=Local",
-		conf.Config.Data.MySQL.Username, conf.Config.Data.MySQL.Password,
-		conf.Config.Data.MySQL.Host, conf.Config.Data.MySQL.Port, conf.Config.Data.MySQL.Database)
 	mysqlConfig := mysql.Config{
-		DSN:                       dsn,
+		DSN:                       conf.Config.Data.MySQL.DSN,
 		DefaultStringSize:         255,   // string 类型字段的默认长度
 		DisableDatetimePrecision:  true,  // 禁用 datetime 精度，MySQL 5.6 之前的数据库不支持
 		DontSupportRenameIndex:    true,  // 重命名索引时采用删除并新建的方式，MySQL 5.7 之前的数据库和 MariaDB 不支持重命名索引
@@ -53,11 +49,11 @@ func InitMySQL() error {
 	gromConfig := gorm.Config{
 		Logger:                 newLogger,
 		CreateBatchSize:        1024,
-		AllowGlobalUpdate:      false,
-		SkipDefaultTransaction: true,
+		AllowGlobalUpdate:      false, // 全局 update/delete
+		SkipDefaultTransaction: true,  // 跳过默认事务
 		NowFunc: func() time.Time {
 			return time.Now().Local()
-		},
+		}, // 更改创建时间使用的函数
 	}
 
 	if db, err := gorm.Open(mysql.New(mysqlConfig), &gromConfig); err != nil {
@@ -67,9 +63,10 @@ func InitMySQL() error {
 	}
 
 	db, _ := MySQL.DB()
-	db.SetMaxOpenConns(conf.Config.Data.MySQL.MaxConn)
-	db.SetMaxIdleConns(conf.Config.Data.MySQL.MaxIdle)
-	db.SetConnMaxLifetime(time.Duration(conf.Config.Data.MySQL.Timeout) * time.Minute)
+	db.SetMaxOpenConns(conf.Config.Data.MySQL.MaxOpen)                                         // 设置空闲连接池中连接的最大数量
+	db.SetMaxIdleConns(conf.Config.Data.MySQL.MaxIdle)                                         // 设置打开数据库连接的最大数量。
+	db.SetConnMaxLifetime(time.Duration(conf.Config.Data.MySQL.MaxConnLifetime) * time.Second) // 设置了连接可复用的最大时间。
+	db.SetConnMaxIdleTime(time.Duration(conf.Config.Data.MySQL.MaxIdleTime) * time.Second)     // 设置空闲连接最大时间
 
 	if err := MySQL.Callback().Create().Before("gorm:create").Register("BeforeCreateCallback", beforeCreateCallback); err != nil {
 		return err
@@ -189,30 +186,3 @@ func afterUpdateCallback(db *gorm.DB) {
 }
 
 /******* Callback end  *******/
-
-// DBEntity 实体接口
-type DBEntity interface {
-	// GetEntity 获取实体基础结构体
-	GetEntity() *Entity
-	// GetExpire 获取缓存失效时间，0不缓存
-	GetExpire() time.Duration
-}
-
-// Entity 实体基结构体
-type Entity struct {
-	ID            uint64    `gorm:"column:C001;not null;primary_key;autoIncrement:false;comment:数据ID"`
-	ZyxVersion    uint64    `gorm:"column:C002;not null;comment:数据版本"`
-	ZyxDelete     bool      `gorm:"column:C003;not null;index;comment:删除标记"`
-	ZyxCreateTime time.Time `gorm:"column:C004;not null;index;comment:创建时间"`
-	ZyxUpdateTime time.Time `gorm:"column:C005;not null;index;comment:修改时间"`
-}
-
-func (e *Entity) GetIDString() string {
-	return x.ToString(e.ID)
-}
-
-// Operator 操作人相关字段
-type Operator struct {
-	ZyxCreateUid uint64 `gorm:"column:C008;not null;index;comment:创建人ID"`
-	ZyxUpdateUid uint64 `gorm:"column:C009;not null;index;comment:修改人ID"`
-}

@@ -1,5 +1,5 @@
 /*
- * Copyright © 2021 - 2022 vity <vityme@icloud.com>.
+ * Copyright © 2021 - 2023 vity <vityme@icloud.com>.
  *
  * Use of this source code is governed by an MIT-style
  * license that can be found in the LICENSE file.
@@ -18,23 +18,30 @@ type portConf struct {
 	WebSocketPort int `yaml:"ws"`
 }
 
-type dataConf struct {
-	Host     string `yaml:"host"`
-	Port     int    `yaml:"port"`
-	Database string `yaml:"database"`
+type mysqlConf struct {
+	DSN             string `yaml:"dsn"`
+	MaxOpen         int    `yaml:"max-open"`
+	MaxIdle         int    `yaml:"max-idle"`
+	MaxIdleTime     int    `yaml:"max-idle-time"`
+	MaxConnLifetime int    `yaml:"max-conn-lifetime"`
+}
+
+type redisConf struct {
+	Addr     string `yaml:"addr"`
+	Database int    `yaml:"database"`
 	Username string `yaml:"username"`
 	Password string `yaml:"password"`
-	MaxConn  int    `yaml:"max-conn"`
+	MinIdle  int    `yaml:"min-idle"`
 	MaxIdle  int    `yaml:"max-idle"`
-	Timeout  int    `yaml:"timeout"`
+	Prefix   string `yaml:"prefix"`
 }
 
 type config struct {
 	App  appConf  `yaml:"app"`
 	Port portConf `yaml:"port"`
 	Data struct {
-		MySQL dataConf `yaml:"mysql"`
-		Redis dataConf `yaml:"redis"`
+		MySQL mysqlConf `yaml:"mysql"`
+		Redis redisConf `yaml:"redis"`
 	} `yaml:"data"`
 }
 
