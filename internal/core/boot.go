@@ -1,5 +1,5 @@
 /*
- * Copyright © 2021 - 2022 vity <vityme@icloud.com>.
+ * Copyright © 2021 - 2023 vity <vityme@icloud.com>.
  *
  * Use of this source code is governed by an MIT-style
  * license that can be found in the LICENSE file.
@@ -11,8 +11,8 @@ import (
 	"github.com/mvity/go-boot/internal/api"
 	"github.com/mvity/go-boot/internal/conf"
 	"github.com/mvity/go-boot/internal/dao"
-	"github.com/mvity/go-boot/internal/dao/dbs"
-	"github.com/mvity/go-boot/internal/dao/rds"
+	"github.com/mvity/go-boot/internal/dao/mysql"
+	"github.com/mvity/go-boot/internal/dao/redis"
 	"github.com/mvity/go-boot/internal/job"
 	"github.com/mvity/go-boot/internal/logs"
 	"github.com/mvity/go-boot/internal/ws"
@@ -21,10 +21,10 @@ import (
 )
 
 // Boot 启动入口
-func Boot(_api, _job, _wss bool, config string, port int) {
+func Boot(_api, _job, _wss bool, configFilePath string, port int) {
 	log.Println("WebsocketServer version: ", Version)
 	log.Println("WebsocketServer Run Module: ", "API [", _api, "]", "Job [", _job, "]", "WebSocket [", _wss, "]")
-	if err := conf.InitConfig(config); err != nil {
+	if err := conf.InitConfig(configFilePath); err != nil {
 		log.Panicf("Init Config error, cause: %v\n", err)
 	}
 	if err := logs.InitLogger(); err != nil {
@@ -72,10 +72,10 @@ func Boot(_api, _job, _wss bool, config string, port int) {
 }
 
 // InitProject 初始化项目
-func InitProject(config string) {
+func InitProject(configFilePath string) {
 	log.Println("WebsocketServer version: ", Version)
 	log.Println("Now init project data.")
-	if err := conf.InitConfig(config); err != nil {
+	if err := conf.InitConfig(configFilePath); err != nil {
 		log.Panicf("Init Config error, cause: %v\n", err)
 	}
 	if err := os.MkdirAll(conf.Config.App.LogPath, os.ModePerm); err != nil {

@@ -1,5 +1,5 @@
 /*
- * Copyright © 2021 - 2022 vity <vityme@icloud.com>.
+ * Copyright © 2021 - 2023 vity <vityme@icloud.com>.
  *
  * Use of this source code is governed by an MIT-style
  * license that can be found in the LICENSE file.
@@ -13,14 +13,12 @@ import (
 	"github.com/spf13/cobra"
 )
 
+// oh~~~~
 func main() {
-	Execute()
-}
-
-func Execute() {
 	cobra.CheckErr(rootCmd.Execute())
 }
 
+// 初始化命令行参数
 func init() {
 	rootCmd.AddCommand(apiCmd)
 	rootCmd.AddCommand(jobCmd)

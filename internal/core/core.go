@@ -5,14 +5,4 @@
  * license that can be found in the LICENSE file.
  */
 
-package job
-
-// InitJobService 启动JobTask服务
-func InitJobService() error {
-	defer func() {
-		select {}
-	}()
-	go Executor.Start()
-	go Fiexd.Start()
-	return nil
-}
+package core

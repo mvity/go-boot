@@ -11,7 +11,7 @@ import (
 	"context"
 	"github.com/mvity/go-boot/internal/app"
 	"github.com/mvity/go-boot/internal/conf"
-	"github.com/mvity/go-boot/internal/dao/rds"
+	rds "github.com/mvity/go-boot/internal/dao/redis"
 	"github.com/mvity/go-box/x"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"

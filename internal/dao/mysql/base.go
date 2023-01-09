@@ -1,5 +1,5 @@
 /*
- * Copyright © 2021 - 2022 vity <vityme@icloud.com>.
+ * Copyright © 2021 - 2023 vity <vityme@icloud.com>.
  *
  * Use of this source code is governed by an MIT-style
  * license that can be found in the LICENSE file.
@@ -11,7 +11,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/mvity/go-boot/internal/app"
-	"github.com/mvity/go-boot/internal/dao/rds"
+	rds "github.com/mvity/go-boot/internal/dao/redis"
 	"gorm.io/gorm"
 	"gorm.io/gorm/schema"
 	"strconv"

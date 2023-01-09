@@ -16,16 +16,15 @@ import (
 	"strings"
 )
 
-// handler 控制器方法
-type handler func(ctx *gin.Context) *app.Result
+// Handler 控制器方法
+type Handler func(ctx *gin.Context) *app.Result
 
 // wrapper 封装控制器方法
-func wrapper(handler handler) func(ctx *gin.Context) {
+func wrapper(handler Handler) func(ctx *gin.Context) {
 	return func(ctx *gin.Context) {
 		result := handler(ctx)
 		if result != nil {
-			noAES := ctx.GetBool(app.GinEncrypt) // 是否启用AES加密
-			if noAES {
+			if !ctx.GetBool(app.GinEncrypt) {
 				ctx.JSON(http.StatusOK, result)
 			} else {
 				ctime := ctx.Query("time")

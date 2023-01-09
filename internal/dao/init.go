@@ -1,5 +1,5 @@
 /*
- * Copyright © 2021 - 2022 vity <vityme@icloud.com>.
+ * Copyright © 2021 - 2023 vity <vityme@icloud.com>.
  *
  * Use of this source code is governed by an MIT-style
  * license that can be found in the LICENSE file.
@@ -10,8 +10,7 @@ package dao
 import (
 	"fmt"
 	"github.com/mvity/go-boot/internal/conf"
-	"github.com/mvity/go-boot/internal/dao/dbs"
-	"gorm.io/driver/mysql"
+	dbs "github.com/mvity/go-boot/internal/dao/mysql"
 	"gorm.io/gorm"
 )
 
@@ -21,7 +20,7 @@ func InitMySQLDatabase() error {
 		conf.Config.Data.MySQL.Username, conf.Config.Data.MySQL.Password,
 		conf.Config.Data.MySQL.Host, conf.Config.Data.MySQL.Port)
 
-	if db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{}); err != nil {
+	if db, err := gorm.Open(dbs.Open(dsn), &gorm.Config{}); err != nil {
 		return err
 	} else {
 		dbInit := fmt.Sprintf("CREATE DATABASE IF NOT EXISTS `%s` CHARACTER SET 'utf8mb4' COLLATE 'utf8mb4_0900_ai_ci'",
