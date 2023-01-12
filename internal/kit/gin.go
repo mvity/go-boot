@@ -21,18 +21,18 @@ func GetGormDB(ctx *gin.Context) *gorm.DB {
 }
 
 // GetNowUser 获取当前操作用户
-func GetNowUser(ctx *gin.Context) *dbs.SysUser {
+func GetNowUser(ctx *gin.Context) *dbs.UmsUser {
 	db := GetGormDB(ctx)
-	usr := dbs.FindCache[dbs.SysUser](db, ctx.GetUint64(app.GinUserID))
+	usr := dbs.FindCache[dbs.UmsUser](db, ctx.GetUint64(app.GinUserID))
 	return usr
 }
 
 // GetNowEmployee 获取当前操作员工，后台
-func GetNowEmployee(ctx *gin.Context) (*dbs.SysUser, *dbs.SysEmployee) {
+func GetNowEmployee(ctx *gin.Context) (*dbs.UmsUser, *dbs.UmsEmployee) {
 	db := GetGormDB(ctx)
-	usr := dbs.FindCache[dbs.SysUser](db, ctx.GetUint64(app.GinUserID))
+	usr := dbs.FindCache[dbs.UmsUser](db, ctx.GetUint64(app.GinUserID))
 	if usr == nil || usr.Type != app.UserTypeEmployee {
 		return usr, nil
 	}
-	return usr, dbs.FindCache[dbs.SysEmployee](db, usr.ID)
+	return usr, dbs.FindCache[dbs.UmsEmployee](db, usr.ID)
 }

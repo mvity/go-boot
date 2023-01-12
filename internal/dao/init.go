@@ -33,7 +33,7 @@ func InitMySQLDatabase() error {
 // InitMySQLTable 初始化数据表
 func InitMySQLTable() error {
 
-	if err := dbs.MySQL.AutoMigrate(&dbs.SysUser{}, &dbs.SysEmployee{}); err != nil {
+	if err := dbs.MySQL.AutoMigrate(&dbs.UmsUser{}, &dbs.UmsEmployee{}); err != nil {
 		return err
 	}
 

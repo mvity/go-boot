@@ -11,12 +11,12 @@ import (
 	"time"
 )
 
-// SysUser 用户信息
-type SysUser struct {
+// UmsUser 用户信息
+type UmsUser struct {
 	Entity
 	Operator
 	Type            int8      `gorm:"column:B001;not null;index;comment:用户类型"`
-	Name            string    `gorm:"column:B002;not null;index;size:128;comment:用户名称"`
+	Name            string    `gorm:"column:B002;not null;size:128;comment:用户名称"`
 	LastLoginTime   time.Time `gorm:"column:B010;not null;comment:最后登录时间"`
 	LastLoginIP     string    `gorm:"column:B011;not null;size:64;comment:最后登录IP"`
 	LastLoginCity   string    `gorm:"column:B012;not null;size:128;comment:最后登录城市"`
@@ -29,16 +29,16 @@ type SysUser struct {
 }
 
 // TableName 数据表名称
-func (e *SysUser) TableName() string {
-	return "SYS001"
+func (e *UmsUser) TableName() string {
+	return "UMS001"
 }
 
 // GetEntity 实体对象
-func (e *SysUser) GetEntity() *Entity {
+func (e *UmsUser) GetEntity() *Entity {
 	return &e.Entity
 }
 
 // GetExpire 缓存时长
-func (e *SysUser) GetExpire() time.Duration {
+func (e *UmsUser) GetExpire() time.Duration {
 	return 24 * time.Hour
 }

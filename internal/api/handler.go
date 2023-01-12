@@ -267,7 +267,7 @@ func authHandler(auth bool) gin.HandlerFunc {
 				panic(&app.ApiError{ErrCode: app.GinAuthError, Message: "登录已失效，请重新登录"}) // 未登录用户
 			}
 		} else {
-			if user := dbs.FindCache[dbs.SysUser](kit.GetGormDB(ctx), uint64(uid)); user != nil {
+			if user := dbs.FindCache[dbs.UmsUser](kit.GetGormDB(ctx), uint64(uid)); user != nil {
 				ctxMap := (ctx.Request.Context().Value(app.GinContext)).(map[string]string)
 				ctxMap[app.GinUserID] = strconv.FormatUint(user.ID, 10)
 				ctx.Set(app.GinUserID, user.ID)
@@ -286,7 +286,7 @@ func authHandler(auth bool) gin.HandlerFunc {
 func typeHandler(types ...int8) gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		if len(types) > 0 {
-			if user := dbs.FindCache[dbs.SysUser](kit.GetGormDB(ctx), ctx.GetUint64(app.GinUserID)); user == nil {
+			if user := dbs.FindCache[dbs.UmsUser](kit.GetGormDB(ctx), ctx.GetUint64(app.GinUserID)); user == nil {
 				panic(&app.ApiError{ErrCode: app.GinAuthError, Message: "登录已失效，请重新登录"}) // 未登录用户
 			} else {
 				flag := false
@@ -309,7 +309,7 @@ func typeHandler(types ...int8) gin.HandlerFunc {
 func roleHandler(roles ...string) gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		if len(roles) > 0 {
-			if emp := dbs.FindCache[dbs.SysEmployee](kit.GetGormDB(ctx), ctx.GetUint64(app.GinUserID)); emp == nil {
+			if emp := dbs.FindCache[dbs.UmsEmployee](kit.GetGormDB(ctx), ctx.GetUint64(app.GinUserID)); emp == nil {
 				panic(&app.ApiError{ErrCode: app.GinAuthError, Message: "登录已失效，请重新登录"}) // 未登录用户
 			} else {
 				flag := false
