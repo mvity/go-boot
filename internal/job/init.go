@@ -7,6 +7,10 @@
 
 package job
 
+import (
+	"github.com/mvity/go-boot/internal/logs"
+)
+
 // InitJobService 启动JobTask服务
 func InitJobService() error {
 	defer func() {
@@ -14,5 +18,6 @@ func InitJobService() error {
 	}()
 	go Task.Start()
 	go Fiexd.Start()
+	logs.LogSysInfo("Start Job service success", nil)
 	return nil
 }

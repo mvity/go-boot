@@ -171,7 +171,8 @@ func bodyHandler() gin.HandlerFunc {
 				gNonce := ctx.Query("nonce")
 				gTime := ctx.Query("time")
 				aesKey := x.MD5String(gNonce + gTime)
-				aesIv := x.MD5String(aesKey)[8:24]
+				aesStart := x.ToInt(gTime[len(gTime)-1:])
+				aesIv := x.MD5String(aesKey)[aesStart : aesStart+16]
 				bodyStr = x.AESDecrypt(aesKey, aesIv, bodyStr)
 			}
 			var bodyNew = ""

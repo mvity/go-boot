@@ -24,16 +24,18 @@ func wrapper(handler Handler) func(ctx *gin.Context) {
 	return func(ctx *gin.Context) {
 		result := handler(ctx)
 		if result != nil {
+			rString := x.JsonToString(result)
 			if !ctx.GetBool(app.GinEncrypt) {
 				ctx.JSON(http.StatusOK, result)
 			} else {
-				ctime := ctx.Query("time")
-				reqid := ctx.Query("reqid")
-				key := x.MD5String(ctime + reqid)
-				iv := x.MD5String(key)[8:24]
-				ctx.String(http.StatusOK, x.AESEncrypt(key, iv, x.JsonToString(result)))
+				gReqId := ctx.Query("reqid")
+				gTime := ctx.Query("time")
+				aesKey := x.MD5String(gTime + gReqId)
+				aesStart := x.ToInt(gTime[len(gTime)-1:])
+				aesIv := x.MD5String(aesKey)[aesStart : aesStart+16]
+				ctx.String(http.StatusOK, x.AESEncrypt(aesKey, aesIv, rString))
 			}
-			logs.LogApiInfo(ctx, result.Status.Error, x.JsonToString(result))
+			logs.LogApiInfo(ctx, result.Status.Error, rString)
 		}
 	}
 }
