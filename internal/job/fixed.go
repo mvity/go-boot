@@ -24,7 +24,7 @@ var Fiexd fixed
 // Start 启动执行器
 func (f *fixed) Start() {
 	f.crond = cron.New()
-	f.addFunc()
+	f.addFuncs()
 	f.crond.Start()
 }
 
@@ -34,7 +34,7 @@ func (f *fixed) Stop() {
 }
 
 // addFunc 添加任务
-func (f *fixed) addFunc() {
+func (f *fixed) addFuncs() {
 	var err error
 	var eid cron.EntryID
 
@@ -43,7 +43,7 @@ func (f *fixed) addFunc() {
 	}); err != nil {
 		panic(errors.New(fmt.Sprintf("[%s] %s %v", "job.Fiexd", "Add [demo] f error", err)))
 	} else {
-		logs.LogSysInfo(fmt.Sprintf("[%s] %s , EntryID: %v", "job.Fiexd", "Add [demo] f success", eid), nil)
+		logs.LogJobInfo(fmt.Sprintf("[%s] %s , EntryID: %v", "job.Fiexd", "Add [demo] f success", eid), nil)
 	}
 
 }

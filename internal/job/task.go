@@ -19,15 +19,15 @@ import (
 	"time"
 )
 
-type executor struct {
+type task struct {
 	ticker *time.Ticker
 }
 
-// Executor 动态任务执行器
-var Executor executor
+// Task 动态任务执行器
+var Task task
 
 // Start 启动执行器
-func (e *executor) Start() {
+func (e *task) Start() {
 	e.ticker = time.NewTicker(time.Second * time.Duration(1))
 	for {
 		go e.handle(time.Now())
@@ -36,18 +36,18 @@ func (e *executor) Start() {
 }
 
 // Stop 停止执行器
-func (e *executor) Stop() {
+func (e *task) Stop() {
 	e.ticker.Stop()
 }
 
 // 处理任务
-func (e *executor) handle(now time.Time) {
+func (e *task) handle(now time.Time) {
 	tasks := rds.Task.GetTasks(now)
 	for _, task := range tasks {
-		logs.LogSysInfo(fmt.Sprintf("Exec task %v", task), nil)
+		logs.LogJobInfo(fmt.Sprintf("Exec task %v", task), nil)
 		node, err := x.JsonFromStringE(task)
 		if err != nil {
-			logs.LogSysInfo("Parse Task json error ", err)
+			logs.LogJobInfo("Parse Task json error ", err)
 			continue
 		}
 		db := dbs.MySQL.WithContext(context.Background())
@@ -61,10 +61,10 @@ func (e *executor) handle(now time.Time) {
 }
 
 // 执行任务
-func (*executor) doExecTestTask(db *gorm.DB, now time.Time, id string, info string) {
+func (*task) doExecTestTask(db *gorm.DB, now time.Time, id string, info string) {
 	defer func() {
 		if err := recover(); err != nil {
-			logs.LogSysInfo(fmt.Sprintf("Exec doExecTestTask Error on %v , info: %v \n", x.FormatDateTime(now), info), err.(error))
+			logs.LogJobInfo(fmt.Sprintf("Exec doExecTestTask Error on %v , info: %v \n", x.FormatDateTime(now), info), err.(error))
 		}
 	}()
 	if rds.Task.IsHandled(now, id) {

@@ -12,7 +12,7 @@ func InitJobService() error {
 	defer func() {
 		select {}
 	}()
-	go Executor.Start()
+	go Task.Start()
 	go Fiexd.Start()
 	return nil
 }

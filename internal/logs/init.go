@@ -30,7 +30,6 @@ func InitLogger() error {
 }
 
 func handleLogger(tag string) *zap.Logger {
-
 	encoderConfig := zap.NewProductionEncoderConfig()
 	encoderConfig.EncodeTime = zapcore.ISO8601TimeEncoder
 	encoderConfig.EncodeLevel = zapcore.CapitalColorLevelEncoder

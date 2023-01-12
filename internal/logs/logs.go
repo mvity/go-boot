@@ -40,6 +40,31 @@ func LogApiInfo(ctx *gin.Context, err int8, result string) {
 	)
 }
 
+// LogJobInfo 记录任务日志
+func LogJobInfo(content string, err any) {
+	if err == nil {
+		pc, _, line, _ := runtime.Caller(1)
+		f := runtime.FuncForPC(pc)
+
+		log.Printf("[INFO] Sys: <%v[%-4d]> %s", f.Name(), line, content)
+		jobLogger.Info(fmt.Sprintf("<%v[%-4d]> %s", f.Name(), line, content))
+
+	} else {
+		max := 12
+		if conf.Config.App.Debug {
+			max = 100
+		}
+		pc := make([]uintptr, max)
+		n := runtime.Callers(0, pc)
+		for i := 2; i < n; i++ {
+			f := runtime.FuncForPC(pc[i])
+			_, line := f.FileLine(pc[i])
+			log.Printf("[FAIL] Sys: <%v[%-4d]> %v, %v", f.Name(), line, content, err)
+			jobLogger.Error(fmt.Sprintf("<%v[%-4d]> %v, %v", f.Name(), line, content, err))
+		}
+	}
+}
+
 // LogWssInfo 记录Websocket日志
 func LogWssInfo(addr string, userId uint64, message string) {
 	// 控制台输出
@@ -51,23 +76,6 @@ func LogWssInfo(addr string, userId uint64, message string) {
 		zap.String("Addr", addr),
 		zap.Uint64("UserId", userId),
 		zap.String("Message", message),
-	)
-}
-
-// LogExtInfo 记录请求第三方接口日志
-func LogExtInfo(api string, uri string, param string, response string, status int, dur time.Duration) {
-	// 控制台输出
-	if conf.Config.App.Debug {
-		log.Printf("[INFO] [%s]: URI: %v, Param: %v, Status: %v, Response: %v, Time: %v", api, uri, param, status, response, dur)
-	}
-	// 文件记录
-	extLogger.Info("Ext invoke",
-		zap.String("api", api),
-		zap.String("url", uri),
-		zap.String("param", param),
-		zap.String("resp", response),
-		zap.Int("status", status),
-		zap.Duration("dur", dur),
 	)
 }
 
@@ -94,6 +102,23 @@ func LogSysInfo(content string, err any) {
 			sysLogger.Error(fmt.Sprintf("<%v[%-4d]> %v, %v", f.Name(), line, content, err))
 		}
 	}
+}
+
+// LogExtInfo 记录请求第三方接口日志
+func LogExtInfo(api string, uri string, param string, response string, status int, dur time.Duration) {
+	// 控制台输出
+	if conf.Config.App.Debug {
+		log.Printf("[INFO] [%s]: URI: %v, Param: %v, Status: %v, Response: %v, Time: %v", api, uri, param, status, response, dur)
+	}
+	// 文件记录
+	extLogger.Info("Ext invoke",
+		zap.String("api", api),
+		zap.String("url", uri),
+		zap.String("param", param),
+		zap.String("resp", response),
+		zap.Int("status", status),
+		zap.Duration("dur", dur),
+	)
 }
 
 // LogNotifyInfo 记录回调接口日志
