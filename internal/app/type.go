@@ -23,11 +23,11 @@ import (
 type GormJSON json.RawMessage
 
 // Value return json value, implement driver.Valuer interface
-func (j GormJSON) Value() (driver.Value, error) {
-	if len(j) == 0 {
+func (j *GormJSON) Value() (driver.Value, error) {
+	if len(*j) == 0 {
 		return nil, nil
 	}
-	bytes, err := json.RawMessage(j).MarshalJSON()
+	bytes, err := json.RawMessage(*j).MarshalJSON()
 	return string(bytes), err
 }
 
@@ -54,8 +54,8 @@ func (j *GormJSON) Scan(value any) error {
 }
 
 // MarshalJSON to output non base64 encoded []byte
-func (j GormJSON) MarshalJSON() ([]byte, error) {
-	return json.RawMessage(j).MarshalJSON()
+func (j *GormJSON) MarshalJSON() ([]byte, error) {
+	return json.RawMessage(*j).MarshalJSON()
 }
 
 // UnmarshalJSON to deserialize []byte
@@ -66,17 +66,17 @@ func (j *GormJSON) UnmarshalJSON(b []byte) error {
 	return err
 }
 
-func (j GormJSON) String() string {
-	return string(j)
+func (j *GormJSON) String() string {
+	return string(*j)
 }
 
 // GormDataType gorm common data type
-func (j GormJSON) GormDataType() string {
+func (j *GormJSON) GormDataType() string {
 	return "json"
 }
 
 // GormDBDataType gorm dao data type
-func (j GormJSON) GormDBDataType(db *gorm.DB, _ *schema.Field) string {
+func (j *GormJSON) GormDBDataType(db *gorm.DB, _ *schema.Field) string {
 	switch db.Dialector.Name() {
 	case "sqlite":
 		return "JSON"
@@ -88,8 +88,8 @@ func (j GormJSON) GormDBDataType(db *gorm.DB, _ *schema.Field) string {
 	return ""
 }
 
-func (j GormJSON) GormValue(_ context.Context, db *gorm.DB) clause.Expr {
-	if len(j) == 0 {
+func (j *GormJSON) GormValue(_ context.Context, db *gorm.DB) clause.Expr {
+	if len(*j) == 0 {
 		return gorm.Expr("NULL")
 	}
 

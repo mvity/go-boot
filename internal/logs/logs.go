@@ -23,16 +23,16 @@ import (
 func LogApiInfo(ctx *gin.Context, err int8, result string) {
 	// 控制台输出
 	if err > 0 {
-		log.Printf("[FAIL] Api: URI: %v , Time: %v\nParam: \n%v\nResponse: \n%v\n", ctx.Request.URL, time.Since(ctx.GetTime(app.GinTime)), ctx.GetString(app.GinBody), result)
+		log.Printf("API [FAIL] URI: %v , ErrCode: %v , Duration: %v\nBody: %v\nResp: %v\n", ctx.Request.URL, err, time.Since(ctx.GetTime(app.GinTime)), x.StringDefaultIfBlank(ctx.GetString(app.GinBody), "{}"), result)
 	} else if conf.Config.App.Debug {
-		log.Printf("[INFO] Api: URI: %v , Time: %v\nParam: \n%v\nResponse: \n%v\n", ctx.Request.URL, time.Since(ctx.GetTime(app.GinTime)), ctx.GetString(app.GinBody), result)
+		log.Printf("API [INFO] URI: %v , ErrCode: %v , Duration: %v\nBody: %v\nResp: %v\n", ctx.Request.URL, err, time.Since(ctx.GetTime(app.GinTime)), x.StringDefaultIfBlank(ctx.GetString(app.GinBody), "{}"), result)
 	}
 	// 文件记录
 	apiLogger.Info("Api invoke",
 		zap.String("method", ctx.Request.Method),
 		zap.String("url", ctx.Request.URL.String()),
 		zap.String("header", x.JsonToString(ctx.Request.Header)),
-		zap.String("body", ctx.GetString(app.GinBody)),
+		zap.String("body", x.StringDefaultIfBlank(ctx.GetString(app.GinBody), "{}")),
 		zap.Int8("err", err),
 		zap.Uint64("uid", ctx.GetUint64(app.GinUserID)),
 		zap.String("result", result),
@@ -46,7 +46,7 @@ func LogJobInfo(content string, err any) {
 		pc, _, line, _ := runtime.Caller(1)
 		f := runtime.FuncForPC(pc)
 
-		log.Printf("[INFO] Sys: <%v[%-4d]> %s", f.Name(), line, content)
+		log.Printf("JOB [INFO] <%v[%-4d]> %s", f.Name(), line, content)
 		jobLogger.Info(fmt.Sprintf("<%v[%-4d]> %s", f.Name(), line, content))
 
 	} else {
@@ -59,7 +59,7 @@ func LogJobInfo(content string, err any) {
 		for i := 2; i < n; i++ {
 			f := runtime.FuncForPC(pc[i])
 			_, line := f.FileLine(pc[i])
-			log.Printf("[FAIL] Sys: <%v[%-4d]> %v, %v", f.Name(), line, content, err)
+			log.Printf("JOB [FAIL] <%v[%-4d]> %v, %v", f.Name(), line, content, err)
 			jobLogger.Error(fmt.Sprintf("<%v[%-4d]> %v, %v", f.Name(), line, content, err))
 		}
 	}
@@ -69,7 +69,7 @@ func LogJobInfo(content string, err any) {
 func LogWssInfo(addr string, userId uint64, message string) {
 	// 控制台输出
 	if conf.Config.App.Debug {
-		log.Printf("[INFO] Wss [%s] , UserId: %v , %v", addr, userId, message)
+		log.Printf("WSS [INFO] [%s] , UserId: %v , %v", addr, userId, message)
 	}
 	// 文件记录
 	wsLogger.Info("Wss invoke",
@@ -85,7 +85,7 @@ func LogSysInfo(content string, err any) {
 		pc, _, line, _ := runtime.Caller(1)
 		f := runtime.FuncForPC(pc)
 
-		log.Printf("[INFO] Sys: <%v[%-4d]> %s", f.Name(), line, content)
+		log.Printf("SYS [INFO] <%v[%-4d]> %s", f.Name(), line, content)
 		sysLogger.Info(fmt.Sprintf("<%v[%-4d]> %s", f.Name(), line, content))
 
 	} else {
@@ -98,7 +98,7 @@ func LogSysInfo(content string, err any) {
 		for i := 2; i < n; i++ {
 			f := runtime.FuncForPC(pc[i])
 			_, line := f.FileLine(pc[i])
-			log.Printf("[FAIL] Sys: <%v[%-4d]> %v, %v", f.Name(), line, content, err)
+			log.Printf("SYS [FAIL] <%v[%-4d]> %v, %v", f.Name(), line, content, err)
 			sysLogger.Error(fmt.Sprintf("<%v[%-4d]> %v, %v", f.Name(), line, content, err))
 		}
 	}
@@ -108,7 +108,7 @@ func LogSysInfo(content string, err any) {
 func LogExtInfo(api string, uri string, param string, response string, status int, dur time.Duration) {
 	// 控制台输出
 	if conf.Config.App.Debug {
-		log.Printf("[INFO] [%s]: URI: %v, Param: %v, Status: %v, Response: %v, Time: %v", api, uri, param, status, response, dur)
+		log.Printf("EXT [INFO] [%s]: URI: %v, Param: %v, Status: %v, Response: %v, Time: %v", api, uri, param, status, response, dur)
 	}
 	// 文件记录
 	extLogger.Info("Ext invoke",
@@ -125,7 +125,7 @@ func LogExtInfo(api string, uri string, param string, response string, status in
 func LogNotifyInfo(biz string, param string, result any) {
 	// 控制台输出
 	if conf.Config.App.Debug {
-		log.Printf("[INFO] Notify [%s] , Param: %v , Result : %v", biz, param, result)
+		log.Printf("Notify [INFO] [%s] , Param: %v , Result : %v", biz, param, result)
 	}
 	// 文件记录
 	extLogger.Info("Notify invoke",

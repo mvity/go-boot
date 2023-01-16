@@ -11,16 +11,13 @@ import (
 	"fmt"
 	"github.com/mvity/go-boot/internal/conf"
 	dbs "github.com/mvity/go-boot/internal/dao/mysql"
+	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 )
 
 // InitMySQLDatabase 初始化数据库
 func InitMySQLDatabase() error {
-	dsn := fmt.Sprintf("%s:%s@tcp(%s:%d)/mysql",
-		conf.Config.Data.MySQL.Username, conf.Config.Data.MySQL.Password,
-		conf.Config.Data.MySQL.Host, conf.Config.Data.MySQL.Port)
-
-	if db, err := gorm.Open(dbs.Open(dsn), &gorm.Config{}); err != nil {
+	if db, err := gorm.Open(mysql.Open(conf.Config.Data.MySQL.DSN), &gorm.Config{}); err != nil {
 		return err
 	} else {
 		dbInit := fmt.Sprintf("CREATE DATABASE IF NOT EXISTS `%s` CHARACTER SET 'utf8mb4' COLLATE 'utf8mb4_0900_ai_ci'",

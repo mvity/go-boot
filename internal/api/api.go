@@ -25,7 +25,7 @@ func wrapper(handler Handler) func(ctx *gin.Context) {
 		result := handler(ctx)
 		if result != nil {
 			rString := x.JsonToString(result)
-			if !ctx.GetBool(app.GinEncrypt) {
+			if !ctx.GetBool(app.GinEncrypt) || result.Status.Error != 0 {
 				ctx.JSON(http.StatusOK, result)
 			} else {
 				gReqId := ctx.Query("reqid")

@@ -22,8 +22,8 @@ import (
 
 // Boot 启动入口
 func Boot(_api, _job, _wss bool, configFilePath string, port int) {
-	log.Println("WebsocketServer version: ", Version)
-	log.Println("WebsocketServer Run Module: ", "API [", _api, "]", "Job [", _job, "]", "WebSocket [", _wss, "]")
+	log.Println("SYS [INFO] GoBoot version: ", Version)
+	log.Println("SYS [INFO] GoBoot Run Module: ", "API [", _api, "]", "Job [", _job, "]", "WebSocket [", _wss, "]")
 	if err := conf.InitConfig(configFilePath); err != nil {
 		log.Panicf("Init Config error, cause: %v\n", err)
 	}

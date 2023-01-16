@@ -12,12 +12,12 @@ import (
 	"github.com/mvity/go-boot/internal/app"
 )
 
-type opCtr struct{}
+type initCtr struct{}
 
-var OpCtr opCtr
+var InitCtr initCtr
 
-// InitUsers 初始化默认用户
-func (*opCtr) InitUsers(ctx *gin.Context) *app.Result {
+// Users 初始化默认用户
+func (*initCtr) Users(ctx *gin.Context) *app.Result {
 
 	return app.Succ()
 }

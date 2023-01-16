@@ -7,11 +7,9 @@
 
 package rds
 
-import "github.com/mvity/go-boot/internal/conf"
-
 var (
-	RedisBloomPrefix = conf.Config.Data.Redis.Prefix + ":B:" // Redis 布隆过滤器前缀
-	RedisCachePrefix = conf.Config.Data.Redis.Prefix + ":C:" // Redis 缓存前缀
-	RedisLockPrefix  = conf.Config.Data.Redis.Prefix + ":L:" // Redis 锁前缀
-	RedisDataPrefix  = conf.Config.Data.Redis.Prefix + ":D:" // Redis 数据前缀
+	RedisCachePrefix string
+	RedisLockPrefix  string
+	RedisDataPrefix  string
+	RedisBloomPrefix string
 )

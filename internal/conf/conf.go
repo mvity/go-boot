@@ -20,6 +20,7 @@ type portConf struct {
 
 type mysqlConf struct {
 	DSN             string `yaml:"dsn"`
+	Database        string `yaml:"database"`
 	MaxOpen         int    `yaml:"max-open"`
 	MaxIdle         int    `yaml:"max-idle"`
 	MaxIdleTime     int    `yaml:"max-idle-time"`

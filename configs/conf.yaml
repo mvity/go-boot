@@ -9,6 +9,7 @@ port:
 data:
   mysql:
     dsn: "vity:P@ssw0rd@tcp(docker.srv:3306)/go_boot_dev?charset=utf8mb4&parseTime=True&loc=Local"
+    database: go_boot_dev
     max-open: 256
     max-idle: 4
     max-idle-time: 30

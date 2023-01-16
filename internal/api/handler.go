@@ -78,22 +78,24 @@ func errsHandler() gin.HandlerFunc {
 	}
 }
 
+func skip(ctx *gin.Context) bool {
+	if ctx.Request.Method != "POST" {
+		ctx.Next()
+		return true
+	}
+	if strings.HasPrefix(ctx.Request.RequestURI, "/notify") {
+		ctx.Next()
+		return true
+	}
+	return false
+}
+
 // 请求检查
 func initHandler() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
-		if ctx.Request.Method == "GET" {
-			ctx.Next()
-			return
-		}
-		if strings.Contains(ctx.Request.RequestURI, "/favicon.ico") {
-			ctx.Next()
-			return
-		}
-
 		ctx.Set(app.GinTime, time.Now())
-		if strings.HasPrefix(ctx.Request.RequestURI, "/notify") {
-			ctx.Set(app.GormContext, dbs.MySQL.WithContext(ctx.Request.Context()))
-			ctx.Next()
+
+		if skip(ctx) {
 			return
 		}
 
@@ -107,7 +109,8 @@ func initHandler() gin.HandlerFunc {
 		gTime := ctx.Query("time")
 		gNonce := ctx.Query("nonce")
 		gSign := ctx.Query("sign")
-		if gToken == "" || gTime == "" || gNonce == "" || gSign == "" {
+		gReqid := ctx.Query("reqid")
+		if gToken == "" || gTime == "" || gNonce == "" || gSign == "" || gReqid == "" {
 			panic(&app.ApiError{ErrCode: app.GinMustParam, Message: "缺少必要参数"})
 		}
 
@@ -140,20 +143,9 @@ func initHandler() gin.HandlerFunc {
 // 请求Body 处理
 func bodyHandler() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
-		// 非业务请求
-		if ctx.Request.Method == "GET" {
-			ctx.Next()
+		if skip(ctx) {
 			return
 		}
-		if strings.HasPrefix(ctx.Request.RequestURI, "/notify") {
-			ctx.Next()
-			return
-		}
-		if strings.Contains(ctx.Request.RequestURI, "/upload") {
-			ctx.Next()
-			return
-		}
-
 		body, err := io.ReadAll(ctx.Request.Body)
 		if err != nil {
 			panic(&app.ApiError{ErrCode: app.GinParamError, Message: "参数解析失败", Origin: err})
@@ -204,24 +196,9 @@ func bodyHandler() gin.HandlerFunc {
 // 签名检查
 func signHandler() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
-		// 非业务请求
-		if ctx.Request.Method == "GET" {
-			ctx.Next()
+		if skip(ctx) {
 			return
 		}
-		if strings.Contains(ctx.Request.RequestURI, "/favicon.ico") {
-			ctx.Next()
-			return
-		}
-		if strings.HasPrefix(ctx.Request.RequestURI, "/notify") {
-			ctx.Next()
-			return
-		}
-		if strings.Contains(ctx.Request.RequestURI, "/upload") {
-			ctx.Next()
-			return
-		}
-
 		gSign := ctx.Query("sign")
 		if "312f74a079873e03a55c" == gSign {
 			// debug 专用签名
