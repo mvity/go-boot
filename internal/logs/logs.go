@@ -84,7 +84,6 @@ func LogSysInfo(content string, err any) {
 	if err == nil {
 		pc, _, line, _ := runtime.Caller(1)
 		f := runtime.FuncForPC(pc)
-
 		log.Printf("SYS [INFO] <%v[%-4d]> %s", f.Name(), line, content)
 		sysLogger.Info(fmt.Sprintf("<%v[%-4d]> %s", f.Name(), line, content))
 

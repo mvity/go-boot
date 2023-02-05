@@ -7,6 +7,8 @@ go get -u github.com/mvity/go-box
 ## Gin Web框架
 
 go get -u github.com/gin-gonic/gin
+go get -u github.com/gin-contrib/cors
+
 
 ## Gorilla Websocket
 

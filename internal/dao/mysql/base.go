@@ -178,7 +178,7 @@ func FindOrigin[T any](db *gorm.DB, id uint64) *T {
 	}
 }
 
-// FindCache 获取缓存数据，不存在查询未删除的数据库数据
+// FindCache 获取缓存数据，不存在查询数据库，不包含删除标记的数据
 func FindCache[T any](db *gorm.DB, id uint64) *T {
 	if id <= 0 {
 		return nil
@@ -196,7 +196,7 @@ func FindCache[T any](db *gorm.DB, id uint64) *T {
 	return &entity
 }
 
-// FindSnapshot 获取缓存数据，不存在查询数据库数据
+// FindSnapshot 获取缓存数据，不存在查询数据库，含删除标记的数据
 func FindSnapshot[T any](db *gorm.DB, id uint64) *T {
 	if id <= 0 {
 		return nil

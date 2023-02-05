@@ -29,6 +29,7 @@ type Entity struct {
 	ZyxUpdateTime time.Time `gorm:"column:C005;not null;index;comment:修改时间"`
 }
 
+// GetIDString 获取数据ID
 func (e *Entity) GetIDString() string {
 	return x.ToString(e.ID)
 }
